@@ -4,8 +4,8 @@ import axios from "axios";
 //assets
 import flight from '../../Images/flight.png'
 import NoBookings from "./NoBookings";
-import { baseUrl } from "../../HelperUrl/Helper";
 import DeleteIcon from '@mui/icons-material/Delete';
+import backend_url from "../../config";
 
 const FlightsTrips=()=>{
     const[token,setToken]=useState('');
@@ -16,7 +16,7 @@ const FlightsTrips=()=>{
         const loginState=localStorage.getItem('loginState');
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/flightbooking`, {
+            axios.get(`${backend_url}/flightbooking`, {
                 headers: {
                         Authorization: `Bearer ${storedToken}`,
                     },
@@ -34,7 +34,7 @@ const FlightsTrips=()=>{
 
       const handleDelete = async (flightId) => {
         try {
-            const response = await axios.delete(`${baseUrl}/flightbooking/${flightId}`, {
+            const response = await axios.delete(`${backend_url}/flightbooking/${flightId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

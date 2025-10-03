@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import 'react-date-range/dist/styles.css'; 
 import 'react-date-range/dist/theme/default.css'; 
 import axios from "axios";
-import { baseUrl } from "../../../HelperUrl/Helper";
 import PNRChecker from "./pnrPart/PNRChecker"
 import ShowPNRResult from "./pnrPart/ShowPNRResult";
 import { classs , liveTrainStatus } from "./data";
 import LiveTrainChecker from "./liveTrainPart/LiveTrainChecker";
 import ShowLiveTrainStatus from "./liveTrainPart/ShowLiveTrainStatus";
+import backend_url from "../../../config";
 
 const StylingRadio=styled(RadioGroup)`
     display:flex;
@@ -93,7 +93,7 @@ const Trains=()=>{
         const loginState=localStorage.getItem('loginState');
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/user`, {
+            axios.get(`${backend_url}/user`, {
                 headers: {
                     Authorization: `Bearer ${storedToken}`,
                     },
@@ -112,40 +112,40 @@ const Trains=()=>{
       },[])
 
     const handlingTrainBooking=async(e)=>{
-    e.preventDefault();
-    try{
-        const currDateObj = new Date();
-        if (travelDate.setHours(0, 0, 0, 0) < currDateObj.setHours(0, 0, 0, 0)) {
-            alert("Travel date cannot be earlier than current date.");
-            return;
-        }
-        if (fromCity === destination) {
-            alert("Kindly fill correct details! Current city and destination can never be the same.");
-            return;
-        }
+        e.preventDefault();
+        try{
+            const currDateObj = new Date();
+            if (travelDate.setHours(0, 0, 0, 0) < currDateObj.setHours(0, 0, 0, 0)) {
+                alert("Travel date cannot be earlier than current date.");
+                return;
+            }
+            if (fromCity === destination) {
+                alert("Kindly fill correct details! Current city and destination can never be the same.");
+                return;
+            }
 
-        const response = await axios.post(`${baseUrl}/trainbooking`,{
-            email,category,fromCity,destination,travelDate,trainNumber,seatingClass
-        })
-        console.log(response.data);
-        if (response.data === "fail") {
-            alert("Train ticket booking failed. Please check the details.");
-            console.log("boooking failed...");
-        } else {
-            alert("Successfully, your train ticket is booked...");
-            setData(response.data);
-            window.location.reload();
+            const response = await axios.post(`${backend_url}/trainbooking`,{
+                email,category,fromCity,destination,travelDate,trainNumber,seatingClass
+            })
+            console.log(response.data);
+            if (response.data === "fail") {
+                alert("Train ticket booking failed. Please check the details.");
+                console.log("boooking failed...");
+            } else {
+                alert("Successfully, your train ticket is booked...");
+                setData(response.data);
+                window.location.reload();
+            }
         }
-    }
-    catch(e){
-        alert("Train ticket booking failed. Please check the details.");
-        console.log('book train failed',e);
-    }
+        catch(e){
+            alert("Train ticket booking failed. Please check the details.");
+            console.log('book train failed',e);
+        }
     }
     const[stations,setStations]=useState([]);
     const fetchAllStations = async () => {
     try {
-        const res = await axios.get(`http://localhost:8000/api/stations`);
+        const res = await axios.get(`${backend_url}/api/stations`);
         setStations(res.data.data);
     } catch (e) {
         console.error("Error in fetching airports:", e.response ? e.response.data : e.message);
@@ -154,19 +154,20 @@ const Trains=()=>{
     useEffect(()=> fetchAllStations , [])
     const[trains,setTrains]=useState([]);
     useEffect(() => {
-    const fromCityBasedStation = stations.find((station) => station.name === fromCity);
-    const destinationBasedStation = stations.find((station) => station.name === destination);
+        const fromCityBasedStation = stations.find((station) => station.name === fromCity);
+        const destinationBasedStation = stations.find((station) => station.name === destination);
 
-    if (fromCityBasedStation && destinationBasedStation) {
-        const commonTrains = fromCityBasedStation.trains.filter((train) =>
-            destinationBasedStation.trains.some((destTrain) => destTrain.id === train.id)
-        );
-        console.log(commonTrains);
-        setTrains(commonTrains); 
-    } else {
-        setTrains([]);
-    }
-}, [fromCity, destination]);
+        if (fromCityBasedStation && destinationBasedStation) {
+            const commonTrains = fromCityBasedStation.trains.filter((train) =>
+                destinationBasedStation.trains.some((destTrain) => destTrain.id === train.id)
+            );
+            console.log("fromCityBasedStation" , fromCityBasedStation);
+            console.log("destinationBasedStation" , destinationBasedStation);
+            setTrains(commonTrains); 
+        } else {
+            setTrains([]);
+        }
+    }, [fromCity, destination]);
 
     const [pnrResult, setPnrResult] = useState(null);
     const [pnrError, setPnrError] = useState("");

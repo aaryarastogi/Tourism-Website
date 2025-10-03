@@ -61,8 +61,8 @@ app.use((req, res, next) => {
 
 connectDB(process.env.USERNAME , process.env.PASSWORD);
 
-app.get("/",cors(),(req,res)=>{
-    // cookie access krni h getcookie krke
+app.get("/",(req,res)=>{
+    res.send("Server is live!!!")
 })
 
 app.post("/",(req,res)=>{

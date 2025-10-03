@@ -8,7 +8,7 @@ import CardTravelIcon from '@mui/icons-material/CardTravel';
 import { Button, Popover, Typography, styled } from "@mui/material";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { baseUrl } from "../../HelperUrl/Helper";
+import backend_url from "../../config";
 
 const MyAccount=()=>{
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -24,7 +24,7 @@ const MyAccount=()=>{
 
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/user`, {
+            axios.get(`${backend_url}/user`, {
                 headers: {
                 Authorization: `Bearer ${storedToken}`,
                     },
@@ -67,7 +67,7 @@ const MyAccount=()=>{
         const token = localStorage.getItem("token");
 
         try {
-            const res = await fetch("http://localhost:8000/logout", {
+            const res = await fetch(`${backend_url}/logout`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`,

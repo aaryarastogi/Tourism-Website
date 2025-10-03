@@ -10,13 +10,12 @@ import { Link, useNavigate } from "react-router-dom";
 import GoogleLogin from "react-google-login";
 
 import {motion} from 'framer-motion'
-import { baseUrl } from "../../HelperUrl/Helper";
+import backend_url from "../../config";
 
 const EmailStyling=styled(TextField)(({ theme }) => ({
   width: '15rem',
   background: 'transparent',
   [theme.breakpoints.up('sm')]: {
-    // marginLeft:'20%'
 },
 }))
 
@@ -52,7 +51,7 @@ const Login=()=>{
     const submitSignup=async(e)=>{
         e.preventDefault();
         try{
-            await axios.post(`${baseUrl}/signup`,{
+            await axios.post(`${backend_url}/signup`,{
                 username,email,password,phoneNumber
             })
             .then(res=>{
@@ -80,7 +79,7 @@ const Login=()=>{
     const responseSuccessGoogle = (response) => {
         console.log(response);
         const { tokenId } = response;
-        fetch(`${baseUrl}/api/authenticate`, {
+        fetch(`${backend_url}/api/authenticate`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${tokenId}`,

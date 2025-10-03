@@ -3,6 +3,7 @@ import axios from "axios";
 import { MessageCircle } from "lucide-react";
 import {jwtDecode} from "jwt-decode";
 import chatbot from "../../Images/chatbot.png"
+import backend_url from "../../config";
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
@@ -33,7 +34,7 @@ export default function ChatBot() {
     console.log(email);
 
     try {
-      const res = await axios.post("http://localhost:8000/api/chat", {
+      const res = await axios.post(`${backend_url}/api/chat`, {
         prompt: input,
         email: email
       });

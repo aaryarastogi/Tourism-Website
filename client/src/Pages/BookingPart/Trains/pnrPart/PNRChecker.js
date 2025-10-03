@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Button , styled } from "@mui/material"
+import backend_url from "../../../../config";
 
 const StylingButton=styled(Button)(({ theme }) => ({
     marginLeft:'85%',
@@ -20,7 +21,7 @@ function PNRChecker({onPnrResult , onPnrError}) {
   const checkPNR = async () => {
     try {
       setError("");
-      const res = await axios.get(`http://localhost:8000/api/pnr/${pnr}`);
+      const res = await axios.get(`${backend_url}/api/pnr/${pnr}`);
       onPnrError(null);
       onPnrResult(res.data);
     } catch (err) {

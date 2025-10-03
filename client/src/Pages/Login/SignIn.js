@@ -8,7 +8,7 @@ import GoogleLogin from 'react-google-login'
 import {gapi} from 'gapi-script'
 
 import {motion} from 'framer-motion'
-import { baseUrl } from "../../HelperUrl/Helper";
+import backend_url from "../../config";
 
 const EmailStyling=styled(TextField)(({ theme }) => ({
   width: '15rem',
@@ -57,7 +57,7 @@ const SignIn=()=>{
     const submit=async(e)=>{
         e.preventDefault();
         try{
-            await axios.post(`${baseUrl}/signin`,{
+            await axios.post(`${backend_url}/signin`,{
                 username,email,password,phoneNumber
             })
             .then(res=>{
@@ -65,7 +65,6 @@ const SignIn=()=>{
                     alert("User is not found")
                 }
                 else if(res.data){
-                    // name=res.data;
                     console.log("login....",res.data)
                     name=res.data.username
                     if(email && password){
@@ -97,7 +96,7 @@ const SignIn=()=>{
     const responseSuccessGoogle=(response)=>{
         console.log(response);
         const { tokenId } = response;
-        fetch(`${baseUrl}/api/authenticate`, {
+        fetch(`${backend_url}/api/authenticate`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${tokenId}`,
@@ -113,7 +112,7 @@ const SignIn=()=>{
                 localStorage.setItem('token', data.token); 
                 localStorage.setItem('login',login);
                 navigate("/", { state: { id: data.user.username , login:login } });
-                window.location.reload(); // Reload the page to update the navbar
+                window.location.reload(); 
             } else {
                 console.error('Authentication failed:', data.message);
             }
@@ -146,7 +145,6 @@ const SignIn=()=>{
                                 buttonText="Login"
                                 onSuccess={responseSuccessGoogle}
                                 onFailure={responseFailureGoogle}
-                                // cookiePolicy={'single_host_origin'}
                             />
                         </Tooltip>
                             <h1 className="text-md text-gray-500">or use your email account</h1>

@@ -4,10 +4,8 @@ import { addDays } from 'date-fns';
 import 'react-date-range/dist/styles.css'; 
 import 'react-date-range/dist/theme/default.css'; 
 import axios from 'axios';
-
-//data
 import {flights} from './data'
-import { baseUrl } from "../../../HelperUrl/Helper";
+import backend_url from "../../../config";
 
 const StylingRadio=styled(RadioGroup)`
     display:flex;
@@ -77,7 +75,7 @@ const Flights=()=>{
         const loginState=localStorage.getItem('loginState');
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/user`, {
+            axios.get(`${backend_url}/user`, {
                 headers: {
                 Authorization: `Bearer ${storedToken}`,
                     },
@@ -116,7 +114,7 @@ const Flights=()=>{
                 alert("Kindly fill correct details! Departure and return dates cannot be in the past.");
             } 
             else {
-                const response = await axios.post(`${baseUrl}/flightbooking`, {
+                const response = await axios.post(`${backend_url}/flightbooking`, {
                     email, category, fromCity, fromCity1, destination, destination1, flight, departureDate, returnDate
                 });
     
@@ -140,7 +138,7 @@ const Flights=()=>{
     const [filteredFlights, setFilteredFlights] = useState([]);
     const fetchAllAirports = async () => {
         try {
-          const res = await axios.get(`http://localhost:8000/api/airports`);
+          const res = await axios.get(`${backend_url}/api/airports`);
           console.log(res.data.data);
           setAirports(res.data.data);
         } catch (e) {

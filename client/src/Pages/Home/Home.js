@@ -7,10 +7,9 @@ import tourism from '../../Images/tour.mp4'
 const Home=(props)=>{
     const location = useLocation();
     const { id , login } = location.state || {};
-    // console.log(id , login)
     return(
         <div className='w-full overflow-x-hidden' id='home'>
-           <video src={tourism} autoPlay loop muted className='flex rounded-md md:w-full mt-6 lg:h-[80vh] rounded-md' />
+           <video src={tourism} autoPlay loop muted className='flex md:w-full mt-6 lg:h-[80vh] rounded-md' />
            <Options/>
         </div>
     )

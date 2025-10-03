@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import backend_url from '../../config';
 
 function PlaceDetail() {
   const { id } = useParams();
   const [place, setPlace] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/api/places/${id}`)
+    axios.get(`${backend_url}/api/places/${id}`)
       .then(response => setPlace(response.data))
       .catch(error => console.error(error));
   }, [id]);

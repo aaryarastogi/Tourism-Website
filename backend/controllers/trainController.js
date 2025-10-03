@@ -12,7 +12,7 @@ export async function createTrain(req, res){
         console.log(station);
       station.trains.push(newTrain._id);
       await station.save();
-
+      console.log("train created");
       res.status(201).json({success: true , data: train});
     } catch (err) {
       res.status(400).json({ success: false , error: err.message });

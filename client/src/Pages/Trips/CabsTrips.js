@@ -4,8 +4,8 @@ import axios from "axios";
 //assets
 import cab from '../../Images/car.png'
 import NoBookings from "./NoBookings";
-import { baseUrl } from "../../HelperUrl/Helper";
 import DeleteIcon from "@mui/icons-material/Delete"
+import backend_url from "../../config";
 
 const CabsTrips=()=>{
 
@@ -17,7 +17,7 @@ const CabsTrips=()=>{
         const loginState=localStorage.getItem('loginState');
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/cabbooking`, {
+            axios.get(`${backend_url}/cabbooking`, {
                 headers: {
                     Authorization: `Bearer ${storedToken}`,
                     },
@@ -39,7 +39,7 @@ const CabsTrips=()=>{
 
       const handleDelete=async(cabId)=>{
         try{    
-            const response = await axios.delete(`${baseUrl}/cabbooking/${cabId}`, {
+            const response = await axios.delete(`${backend_url}/cabbooking/${cabId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

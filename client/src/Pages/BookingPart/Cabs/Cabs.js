@@ -4,7 +4,7 @@ import 'react-date-range/dist/theme/default.css';
 import { Button, FormControlLabel, Radio, RadioGroup, styled } from "@mui/material";
 import axios from "axios";
 import {packages} from './data'
-import { baseUrl } from "../../../HelperUrl/Helper";
+import backend_url from "../../../config";
 
 const StylingRadio=styled(RadioGroup)`
     display:flex;
@@ -75,8 +75,6 @@ const Cabs=()=>{
     const[logined,setLogined]=useState(false);
     const[token,setToken]=useState('');
 
-
-    //api to fetch all cities
     var config = {
         method: 'post',
         url: 'https://countriesnow.space/api/v0.1/countries/cities',
@@ -121,7 +119,7 @@ const Cabs=()=>{
         const loginState=localStorage.getItem('loginState');
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/user`, {
+            axios.get(`${backend_url}/user`, {
                 headers: {
                     Authorization: `Bearer ${storedToken}`,
                     },
@@ -171,7 +169,7 @@ const Cabs=()=>{
                 alert("Drop time must be after pickup time.");
                 return;
             }
-            const response = await axios.post(`${baseUrl}/cabbooking`, {
+            const response = await axios.post(`${backend_url}/cabbooking`, {
                 email,  
                 category,
                 fromCity,
@@ -188,7 +186,6 @@ const Cabs=()=>{
             } else {
                 alert("Successfully, your cab is booked...");
                 setData(response.data);
-                // console.log("data", data);
                 window.location.reload();
             }
         } catch (e) {
@@ -213,15 +210,11 @@ const Cabs=()=>{
                     </StylingRadio>
                     <h1 className="pr-10 text-medium font-semibold text-gray-600 mt-2">Online Cab Booking 🤗</h1>
                 </div>
-
-            {/* Outstation one way */}
             {
                 OutStationOneway ? (
                     <div className="flex flex-col">
                         <div className="my-10 md:border-2 md:border-gray-300 mx-10 rounded-md">
                         <div className="flex md:flex-row flex-col flex-wrap justify-around my-4 md:space-y-0 space-y-4">
-                            
-                            {/* from component */}
                             <div className="text-left md:ml-10">
                                 <h3 className="font-semibold text-gray-800">From</h3>
                                 <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 

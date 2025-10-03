@@ -7,6 +7,7 @@ import Carousel from 'react-multi-carousel';
 import React, { useEffect, useRef, useState } from 'react'
 import {motion} from 'framer-motion'
 import axios from 'axios'
+import backend_url from '../../config';
 
 const SearchStyle=styled(TextField)(({ theme }) => ({
     marginLeft:'auto',
@@ -40,7 +41,7 @@ const Explore =()=>{
 
     const[places,setPlaces]=useState([]);
     useEffect(() => {
-        axios.get(`http://localhost:8000/api/places`)
+        axios.get(`${backend_url}/api/places`)
           .then(response => setPlaces(response.data))
           .catch(error => console.error(error));
       }, []);

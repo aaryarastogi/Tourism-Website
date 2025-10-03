@@ -4,7 +4,7 @@ import axios from 'axios'
 import { prices , rooms } from "./data";
 import 'react-date-range/dist/styles.css'; 
 import 'react-date-range/dist/theme/default.css'; 
-import { baseUrl } from "../../../HelperUrl/Helper";
+import backend_url from "../../../config";
 
 const StylingRadio=styled(RadioGroup)`
     display:flex;
@@ -43,7 +43,7 @@ const Hotels=()=>{
         const loginState=localStorage.getItem('loginState');
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/user`, {
+            axios.get(`${backend_url}/user`, {
                 headers: {
                         Authorization: `Bearer ${storedToken}`,
                     },
@@ -60,7 +60,6 @@ const Hotels=()=>{
         }
         window.scrollTo(1,1);
       },[])
-
       const hotelBooking = async (e) => {
         e.preventDefault();
         try {
@@ -75,7 +74,7 @@ const Hotels=()=>{
             } else if (checkinDateObj < currDate || checkoutDateObj < currDate) {
                 alert("Checkin dates and Checkout date cannot be in the past...");
             } else {
-                await axios.post(`http://localhost:8000/hotelbooking`, {
+                await axios.post(`${backend_url}/hotelbooking`, {
                     email, category, location, checkinDate, checkoutDate, room, price
                 })
                 .then(res => {
@@ -94,7 +93,7 @@ const Hotels=()=>{
 
       const fetchAllCities = async () => {
         try {
-          const res = await axios.get(`http://localhost:8000/api/cities`);
+          const res = await axios.get(`${backend_url}/api/cities`);
           console.log(res.data.data);
           setCities(res.data.data);
         } catch (e) {

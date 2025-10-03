@@ -4,8 +4,8 @@ import axios from "axios";
 //assets
 import hotel from '../../Images/hotel.png'
 import NoBookings from "./NoBookings";
-import { baseUrl } from "../../HelperUrl/Helper";
 import DeleteIcon from "@mui/icons-material/Delete";
+import backend_url from "../../config";
 
 
 const HotelsTrips=()=>{
@@ -19,14 +19,13 @@ const HotelsTrips=()=>{
         console.log('navbar',storedToken);
         if(storedToken){
             setToken(storedToken);
-            axios.get(`http://localhost:8000/hotelbooking`, {
+            axios.get(`${backend_url}/hotelbooking`, {
                 headers: {
                         Authorization: `Bearer ${storedToken}`,
                     },
                 })
             .then(response => {
                 if(response.data.success){
-                    // console.log(response.data);
                     setHotels(response.data.hotels);
                 }
             })
@@ -38,7 +37,7 @@ const HotelsTrips=()=>{
 
       const handleDelete=async(hotelId)=>{
         try {
-            const response = await axios.delete(`${baseUrl}/hotelbooking/${hotelId}`, {
+            const response = await axios.delete(`${backend_url}/hotelbooking/${hotelId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -63,7 +62,6 @@ const HotelsTrips=()=>{
                             <h1 className="text-xl font-semibold text-gray-600 font-serif">Location : <span>{hl.location}</span></h1> 
                             <h1 className="text-xl font-semibold text-gray-600 font-serif">Check-In : <span>{hl.checkinDate}</span></h1> 
                             <h1 className="text-xl font-semibold text-gray-600 font-serif">Check-Out : <span>{hl.checkoutDate}</span></h1>
-                            {/* <h1 className="text-xl font-semibold text-gray-600 font-serif">Rooms : <span>2</span></h1> */}
                             <h1 className="text-xl font-semibold text-gray-600 font-serif">Price : <span>{hl.price}</span></h1>
                         </div>
                     </div>

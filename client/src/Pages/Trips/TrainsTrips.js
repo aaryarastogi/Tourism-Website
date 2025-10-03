@@ -4,8 +4,8 @@ import axios from "axios";
 //assets
 import train from '../../Images/train.png'
 import NoBookings from "./NoBookings";
-import { baseUrl } from "../../HelperUrl/Helper";
 import DeleteIcon from '@mui/icons-material/Delete';
+import backend_url from "../../config";
 
 const TrainsTrips=()=>{
     const[token,setToken]=useState('');
@@ -16,7 +16,7 @@ const TrainsTrips=()=>{
         const loginState=localStorage.getItem('loginState');
         if(storedToken){
             setToken(storedToken);
-            axios.get(`${baseUrl}/trainbooking`, {
+            axios.get(`${backend_url}/trainbooking`, {
                 headers: {
                         Authorization: `Bearer ${storedToken}`,
                     },
@@ -34,7 +34,7 @@ const TrainsTrips=()=>{
 
       const handleDelete=async(trainId)=>{
         try {
-            const response = await axios.delete(`${baseUrl}/trainbooking/${trainId}`, {
+            const response = await axios.delete(`${backend_url}/trainbooking/${trainId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

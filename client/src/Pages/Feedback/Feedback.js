@@ -54,7 +54,7 @@ const Feedback=()=>{
                         transition={{
                           ease:"easeInOut",
                           duration:2,
-                        }} className='bg-transparent hover:shadow-xl w-auto w-auto ml-4 p-4 rounded-md my-4 border-2 border-cyan-400'>
+                        }} className='bg-transparent hover:shadow-xl w-auto ml-4 p-4 rounded-md my-4 border-2 border-cyan-400'>
                             <div className='flex flex-row'>
                                 <img src={feed.image} className='md:w-16 md:h-16 w-12 h-12 mt-2 rounded-full'/>
                                 <div className='flex flex-col ml-4 text-start mt-2'>

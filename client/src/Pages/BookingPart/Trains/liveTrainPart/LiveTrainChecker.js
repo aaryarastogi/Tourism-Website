@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { liveTrainStatus } from "../data"
 import { Button , styled } from "@mui/material"
 import axios from "axios";
+import backend_url from "../../../../config";
 
 const StylingButton=styled(Button)(({ theme }) => ({
     marginLeft:'85%',
@@ -25,7 +26,7 @@ function LiveTrainChecker({onLiveResult, onLiveError}){
 
     const getLiveTrainStatus = async () => {
         try {
-            const res = await axios.get(`http://localhost:8000/api/live-train/${trainNumber}`);
+            const res = await axios.get(`${backend_url}/api/live-train/${trainNumber}`);
             onLiveError(null);
             onLiveResult(res.data);
         } catch (err) {

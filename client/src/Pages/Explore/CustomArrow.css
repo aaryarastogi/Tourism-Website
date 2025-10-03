@@ -1,11 +1,11 @@
 .react-multiple-carousel__arrow {
-    background-color: #000; /* Change background color */
+    background-color: #000; 
     color: #ffffff;
     font-size: 24px; 
   }
 
   .react-multiple-carousel__arrow:hover{
-    background-color: #000; /* Change background color */
+    background-color: #000; 
     color: #ffffff;
     font-size: 24px; 
   }

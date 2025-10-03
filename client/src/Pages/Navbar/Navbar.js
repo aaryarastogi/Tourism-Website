@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import LogoutIcon from '@mui/icons-material/Logout';
 import {motion} from 'framer-motion'
-import { baseUrl } from "../../HelperUrl/Helper";
+import backend_url from "../../config";
 
 const StylingButton=styled(Button)(({ theme }) => ({
     backgroundColor: 'transparent',
@@ -74,14 +74,13 @@ const Navbar=(props)=>{
         
         if (storedToken) {
             setToken(storedToken);
-        axios.get(`${baseUrl}/user`, {
+        axios.get(`${backend_url}/user`, {
             headers: {
                 'Authorization': `Bearer ${storedToken}`, 
             },
             })
             .then(response => {
                 if (response.data.success) {
-                    // console.log('Response data:', response.data);
                     setUsername(response.data.user.username);
                     setLogined(true);
                 }
@@ -93,10 +92,10 @@ const Navbar=(props)=>{
     }, []);
 
     const handleLogout=async()=>{
-        const token = localStorage.getItem("token"); // or sessionStorage.getItem()
+        const token = localStorage.getItem("token"); 
 
         try {
-            const res = await fetch("http://localhost:8000/logout", {
+            const res = await fetch(`${backend_url}/logout`, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -107,9 +106,9 @@ const Navbar=(props)=>{
             const data = await res.json();
             if (res.ok) {
                 console.log("Logout successful:", data.message);
-                localStorage.removeItem("token"); // remove from storage
+                localStorage.removeItem("token"); 
                 setLogined(false);
-                window.location.href = "/signin"; // or navigate to login
+                window.location.href = "/signin"; 
             } else {
                 console.error("Logout failed:", data.message);
             }
