@@ -2,7 +2,7 @@ import Chat from '../Schema/Chatbot/ChatbotSchema.js';
 
 import { handleFlightBookPostData} from '../controllers/flightBooking.js';
 import { handleTrainBookPostData }from '../controllers/trainbooking.js';
-import { handleHotelBookPostData} from '../controllers/hotelBooking.js';
+import {handleHotelBookPostData} from '../controllers/hotelbooking.js';
 import { handleCabBookPostData }from '../controllers/cabbooking.js';
 
 import { extractFields , detectBookingType , getMissingFields} from '../utils/bookingHelper.js';
