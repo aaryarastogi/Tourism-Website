@@ -1,6 +1,8 @@
 import collection from "../Schema/Login/LoginSchema.js"
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client("297704508492-ci2ff1dipf6i9sliop0m02k2pqtcdalo.apps.googleusercontent.com");
 
 export async function handleSignIn(req,res){
     const {username,email,password,phoneNumber}=req.body;
@@ -9,27 +11,18 @@ export async function handleSignIn(req,res){
         if(check){
             const isPwdMatch = bcrypt.compare(password,check.password)
             if(isPwdMatch){ 
-                req.session.user=check
-                req.session.loggedIn=true
+              req.session.user=check
+              req.session.loggedIn=true
 
-                const token= await check.generateAuthToken(); //creating token
-                
-                //now ham cookie create kr rhe hai jo ki person ka session ka data store krega browser pr dikhane ke liye
-                // res.cookie('jwtAuth', token, {
-                //     expires: new Date(Date.now() + 25892000000),
-                //     httpOnly: false
-                //     // secure: false, //secure: process.env.NODE_ENV === 'production'
-                //     // sameSite: 'none',
-                // });
-                res.send(req.session.user);
+              const token= await check.generateAuthToken();
+              res.send(req.session.user);
             }
             else{
-                console.log("pwd not match")
+              console.log("pwd not match")
             }
         }
         else{
-            // console.log("nhi hua");
-            res.json("notexist")
+          res.json("notexist")
         }
     }
     catch(e){
@@ -52,7 +45,6 @@ export async function handleSignUp(req,res){
         const check=await collection.findOne({email:email})
 
         if(check){
-            // alert("User already exists....")
             res.json("exist")
         }
         else{
@@ -66,38 +58,45 @@ export async function handleSignUp(req,res){
 }
 
 export async function googleAuthenticateUser(req, res) {
-    const { tokenId } = req.body;
-    try {
-        const decodedToken = jwt.decode(tokenId);
-        const { email, name } = decodedToken;
+  try {
+    const { token } = req.body;
 
-        console.log(email, name);
-        let user = await collection.findOne({ email: email });
-
-        if (!user) { // if user doesn't exist
-            user = new collection({
-                username: name,
-                email: email
-            });
-            await user.save();
-        }
-
-        // Generate JWT token
-        const token = await user.generateAuthToken();
-
-        res.status(200).json({
-            success: true,
-            token: token, // Send the token to the frontend
-            user: {
-                username: user.username,
-                email: user.email
-            },
-        });
-    } catch (error) {
-        console.error('Error during authentication:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-        });
+    if (!token) {
+      return res.status(400).json({ success: false, message: "Token missing" });
     }
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: "297704508492-ci2ff1dipf6i9sliop0m02k2pqtcdalo.apps.googleusercontent.com",
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name } = payload;
+    console.log("Verified user:", email, name);
+    let user = await collection.findOne({ email });
+
+    if (!user) {
+      user = new collection({
+        username: name,
+        email,
+      });
+      await user.save();
+    }
+    const appToken = await user.generateAuthToken();
+
+    return res.status(200).json({
+      success: true,
+      token: appToken, 
+      user: {
+        username: user.username,
+        email: user.email,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error during Google authentication:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 }

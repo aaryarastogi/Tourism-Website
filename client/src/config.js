@@ -1,2 +1,2 @@
-const backend_url = "https://tourism-website-2k15.onrender.com";
+const backend_url = "http://localhost:8000";
 export default backend_url;
