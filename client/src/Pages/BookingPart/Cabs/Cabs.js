@@ -75,44 +75,26 @@ const Cabs=()=>{
     const[logined,setLogined]=useState(false);
     const[token,setToken]=useState('');
 
-    var config = {
-        method: 'post',
-        url: 'https://countriesnow.space/api/v0.1/countries/cities',
-        headers: {
-            'X-CSCAPI-KEY': 'S3AwWUVncFhudTVDRnVrdUJmSVQ1WDR4MDZBN253TlZBU2VWdENBVg==',
-            'Content-Type': 'application/json' // Ensure JSON format
-        },
-        data: {
-            country: 'India'
-        }
-      };
-    
-    var [cities,setCities]=useState([]);
-      axios(config)
-      .then(function (response) {
-        const newData=(response.data.data);
-        setCities(newData);
-      },[])
-      .catch(function (error) {
-        console.log(error);
-      });
+    const [cities,setCities]=useState([]);
+    const [airports,setAirports]=useState([]);
 
-    var configAirports = {
-        method: 'get',
-        url: 'https://airportgap.com/api/airports',
-        headers: {
-          'X-CSCAPI-KEY': 'S3AwWUVncFhudTVDRnVrdUJmSVQ1WDR4MDZBN253TlZBU2VWdENBVg=='
-        }
-    };
-    var [airports,setAirports]=useState([]);
-    axios(configAirports)
-        .then(function (response) {
-        const newData=(response.data.data);
-        setAirports(newData);
-    },[])
-    .catch(function (error) {
-        console.log(error);
-    });
+    // var configAirports = {
+    //     method: 'get',
+    //     url: 'https://airportgap.com/api/airports',
+    //     headers: {
+    //       'X-CSCAPI-KEY': 'S3AwWUVncFhudTVDRnVrdUJmSVQ1WDR4MDZBN253TlZBU2VWdENBVg=='
+    //     }
+    // };
+    // var [airports,setAirports]=useState([]);
+    // axios(configAirports)
+    //     .then(function (response) {
+    //     const newData=(response.data.data);
+    //     setAirports(newData);
+    //     console.log(airports);
+    // },[])
+    // .catch(function (error) {
+    //     // console.log(error);
+    // });
 
     useEffect(()=>{
         const storedToken=localStorage.getItem('token');
@@ -134,6 +116,43 @@ const Cabs=()=>{
                 console.error('Error fetching user data:', error.message);
             });
         }
+        var config = {
+            method: 'post',
+            url: 'https://countriesnow.space/api/v0.1/countries/cities',
+            headers: {
+                'X-CSCAPI-KEY': 'S3AwWUVncFhudTVDRnVrdUJmSVQ1WDR4MDZBN253TlZBU2VWdENBVg==',
+                'Content-Type': 'application/json' // Ensure JSON format
+            },
+            data: {
+                country: 'India'
+            }
+        };
+        axios(config)
+        .then(function (response) {
+            const newData=(response.data.data);
+            setCities(newData);
+        },[])
+        .catch(function (error) {
+            console.log(error);
+        });
+
+        var configAirports = {
+            method: 'get',
+            url: 'https://airportgap.com/api/airports',
+            headers: {
+            'X-CSCAPI-KEY': 'S3AwWUVncFhudTVDRnVrdUJmSVQ1WDR4MDZBN253TlZBU2VWdENBVg=='
+            }
+        };
+        
+        axios(configAirports)
+            .then(function (response) {
+            const newData=(response.data.data);
+            setAirports(newData);
+            console.log(airports);
+        },[])
+        .catch(function (error) {
+            // console.log(error);
+        });
       },[])
 
       const cabBooking = async (e) => {
@@ -180,7 +199,7 @@ const Cabs=()=>{
                 dropTime,
                 packageValue
             });
-            console.log(response.data);
+            console.log(response);
             if (response.data === "fail") {
                 alert("Cab booking failed. Please check the details.");
             } else {

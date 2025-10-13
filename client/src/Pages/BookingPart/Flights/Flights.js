@@ -29,7 +29,6 @@ const Flights=()=>{
       }, []);
 
     const[category,setCategory]=useState('One Way');
-
     const[oneWay,setOneWay]=useState(true);
     const [roundTrip , setRoundTrip]=useState(false);
     const [multiCity,setMultiCity]=useState(false);
@@ -91,7 +90,7 @@ const Flights=()=>{
             });
         }
       },[])
-      console.log(email);
+
       const bookFlight = async (e) => {
         e.preventDefault();
         try {
@@ -134,7 +133,7 @@ const Flights=()=>{
         }
     };
 
-    var [airports,setAirports]=useState([]);
+    const [airports,setAirports]=useState([]);
     const [filteredFlights, setFilteredFlights] = useState([]);
     const fetchAllAirports = async () => {
         try {
