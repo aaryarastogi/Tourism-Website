@@ -5,6 +5,7 @@ import { prices , rooms } from "./data";
 import 'react-date-range/dist/styles.css'; 
 import 'react-date-range/dist/theme/default.css'; 
 import backend_url from "../../../config";
+import { useTheme } from "../../../context/ThemeContext";
 
 const StylingRadio=styled(RadioGroup)`
     display:flex;
@@ -12,18 +13,11 @@ const StylingRadio=styled(RadioGroup)`
 `
 
 const StylingButton=styled(Button)(({ theme }) => ({
-    marginLeft:'85%',
-    marginBottom:'15px',
-    background: '#374151',
-    [theme.breakpoints.down('md')]: {
-      marginLeft:'65%'
-  },
-  ":hover":{
-    background:'#52525b'
-  }
+    display: 'none'
   }))
 
 const Hotels=()=>{
+    const { isDark } = useTheme();
     const [checkinDate,setCheckinDate] = useState(new Date())
     const[category,setCategory]=useState('rooms')
     const[email,setEmail]=useState('');
@@ -108,31 +102,48 @@ const Hotels=()=>{
       }, [location, cities]);
 
     return(
-        <div className="w-full h-screen overflow-hidden">
-            <div className="w-auto bg-white md:mx-32 rounded-md">
-            <div className="flex flex-row space-x-2 ml-12">
-                <StylingRadio
-                    aria-labelledby="demo-radio-buttons-group-label"
-                    defaultValue="female"
-                    name="radio-buttons-group"
-                >
-                    <FormControlLabel value="rooms" control={<Radio checked={category === "rooms"}/>} label="Upto 4 Rooms" onChange={(e)=>setCategory(e.target.value)}/>
-                    <FormControlLabel value="group" control={<Radio checked={category === "group"} />} label="Group Deals" onChange={(e)=>setCategory(e.target.value)}/>
-                </StylingRadio>
-                <h1 className="text-gray-500 mt-12 font-semibold text-md">Book Domestic and International Property Online. To list your property.</h1>  
-            </div>
+        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
+            <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
+                {/* Header */}
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 md:px-8 py-6">
+                    <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">Hotel Booking 🏨</h1>
+                    <p className="text-white/90 mb-4">Book Domestic and International Property Online</p>
+                    <StylingRadio
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        defaultValue="female"
+                        name="radio-buttons-group"
+                        className="flex flex-wrap gap-4"
+                    >
+                        <FormControlLabel 
+                            value="rooms" 
+                            control={<Radio checked={category === "rooms"} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Upto 4 Rooms</span>} 
+                            onChange={(e)=>setCategory(e.target.value)}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                        <FormControlLabel 
+                            value="group" 
+                            control={<Radio checked={category === "group"} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Group Deals</span>} 
+                            onChange={(e)=>setCategory(e.target.value)}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                    </StylingRadio>
+                </div>
 
-            <div className="flex md:flex-row flex-col flex-wrap pt-4 justify-around md:ml-0 ml-10">
+                {/* Form Content */}
+                <div className="p-6 md:p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {/* Location */}
-                 <div className="text-left md:ml-10 py-8">
-                    <h3 className="font-semibold text-gray-800">Location</h3>
+                 <div className="text-left">
+                    <h3 className="font-semibold text-gray-800 mb-2">Location</h3>
                     <select
                     value={location}
                     onChange={(e) => {
                         setLocation(e.target.value);
                         setHotel(""); // Reset hotel selection
                     }}
-                    className="bg-white w-56 md:w-36 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"
+                    className="bg-white w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"
                     >
                     <option value="">Choose a City</option>
                     {cities.map((item, index) => (
@@ -144,12 +155,12 @@ const Hotels=()=>{
                 </div>
 
                 {/* Hotels Selection */}
-                <div className="text-left md:ml-10 py-8">
-                    <h3 className="font-semibold text-gray-800">Hotels</h3>
+                <div className="text-left">
+                    <h3 className="font-semibold text-gray-800 mb-2">Hotels</h3>
                     <select
                     value={hotel}
                     onChange={(e) => setHotel(e.target.value)}
-                    className="bg-white w-56 md:w-36 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"
+                    className="bg-white w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
                     disabled={!location} // Disable if no city is selected
                     >
                     <option value="">Choose a Hotel</option>
@@ -166,22 +177,21 @@ const Hotels=()=>{
                 </div>
 
                 {/* check-in & check-out */}
-                <div className="text-left md:ml-10 py-8">
-                    <h3 className="font-semibold text-gray-800">Check In</h3>
-                    <input type="date" onChange={(e)=> setCheckinDate(e.target.value)}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                <div className="text-left">
+                    <h3 className="font-semibold text-gray-800 mb-2">Check In</h3>
+                    <input type="date" onChange={(e)=> setCheckinDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                 </div>
 
-                <div className="text-left md:ml-10 py-8">
-                    <h3 className="font-semibold text-gray-800">Check Out</h3>
-                    <input type="date" onChange={(e)=> setCheckoutDate(e.target.value)}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                <div className="text-left">
+                    <h3 className="font-semibold text-gray-800 mb-2">Check Out</h3>
+                    <input type="date" onChange={(e)=> setCheckoutDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                 </div>
 
                 {/* rooms & guests */}
-                <div className="text-left md:ml-10 py-4 space-y-4">
-                    <h3 className="font-semibold text-gray-800">Rooms & Guests</h3>
-                    <select value={room} onChange={(e)=> setRoom(e.target.value)} className="md:w-auto w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                    <option className=" bg-blue-400">choose</option>
-                    <h1>Adults</h1>
+                <div className="text-left">
+                    <h3 className="font-semibold text-gray-800 mb-2">Rooms & Guests</h3>
+                    <select value={room} onChange={(e)=> setRoom(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                    <option value="">Choose</option>
                     {   
                         rooms.map((item,index) =>(
                             <option key={index} value={item.value}>{item.value}</option>
@@ -190,10 +200,10 @@ const Hotels=()=>{
                 </div>
 
                 {/* price per night */}
-                <div className="text-left md:ml-10 py-4 space-y-4">
-                    <h3 className="font-semibold text-gray-800">Price Per Night</h3>
-                    <select value={price} onChange={(e)=> setPrice(e.target.value)} className="md:w-36 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                    <option className=" bg-blue-400">choose</option>
+                <div className="text-left">
+                    <h3 className="font-semibold text-gray-800 mb-2">Price Per Night</h3>
+                    <select value={price} onChange={(e)=> setPrice(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                    <option value="">Choose</option>
                     {
                         prices.map((item,index) =>(
                             <option key={index} value={item.value}>{item.value}</option>
@@ -201,7 +211,16 @@ const Hotels=()=>{
                     </select>
                 </div>
             </div>
-            <StylingButton variant="contained" onClick={(e)=>logined ? hotelBooking(e) : alert("You need to login/SignUp first")}>Book Hotel</StylingButton>
+            
+            <div className="flex justify-end mt-8">
+                <button 
+                    onClick={(e)=>logined ? hotelBooking(e) : alert("You need to login/SignUp first")}
+                    className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg"
+                >
+                    Book Hotel
+                </button>
+            </div>
+                </div>
             </div>
         </div>
     )

@@ -9,13 +9,19 @@ import Footer from "./Footer/Footer";
 
 const Main=()=>{
     return(
-        <div>
+        <div className='overflow-x-hidden overflow-y-visible'>
             <Home/>
-        <div className='mt-24'> 
-            <h1 className='mb-6 text-white cursor-pointer'><KeyboardDoubleArrowDownIcon/>Explore More<KeyboardDoubleArrowDownIcon/></h1>
+        <div className='mt-20 md:mt-24 px-4 md:px-8'> 
+            <div className='flex items-center justify-center mb-12'>
+                <h1 className='text-gray-400 text-sm font-medium flex items-center gap-2 animate-bounce cursor-pointer hover:text-indigo-600 transition-colors duration-300'>
+                    <KeyboardDoubleArrowDownIcon className='text-lg'/>Explore More<KeyboardDoubleArrowDownIcon className='text-lg'/>
+                </h1>
+            </div>
             {/* <Offers/> */}
             <Explore/>
-            <Feedback/>
+            <div className='my-20'>
+                <Feedback/>
+            </div>
         </div> 
         <About/>
         <Footer/>

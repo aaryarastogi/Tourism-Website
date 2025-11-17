@@ -9,6 +9,7 @@ import { classs , liveTrainStatus } from "./data";
 import LiveTrainChecker from "./liveTrainPart/LiveTrainChecker";
 import ShowLiveTrainStatus from "./liveTrainPart/ShowLiveTrainStatus";
 import backend_url from "../../../config";
+import { useTheme } from "../../../context/ThemeContext";
 
 const StylingRadio=styled(RadioGroup)`
     display:flex;
@@ -16,17 +17,11 @@ const StylingRadio=styled(RadioGroup)`
 `
 
 const StylingButton=styled(Button)(({ theme }) => ({
-    marginLeft:'85%',
-    background: '#374151',
-    [theme.breakpoints.down('md')]: {
-      marginLeft:'65%'
-  },
-  ":hover":{
-    background:'#52525b'
-  }
+    display: 'none'
   }))
 
 const Trains=()=>{
+    const { isDark } = useTheme();
     const [category,setCategory]=useState('Book Train');
     const[bookTrain,setBookTrain]=useState(true);
     const [checkPNR , setCheckPNR]=useState(false);
@@ -188,58 +183,78 @@ const Trains=()=>{
     }
 
     return(
-        <div className="w-full min-h-screen">
-            <div className="w-auto bg-white md:mx-32 rounded-md py-10">
-            <div className="flex flex-row space-x-2 ml-12 justify-between">
-                <StylingRadio
-                    aria-labelledby="demo-radio-buttons-group-label"
-                    defaultValue="female"
-                    name="radio-buttons-group"
-                >
-                    <FormControlLabel value="Book Train" control={<Radio checked={bookTrain === true} />} label="Book Train Tickets" onClick={handleBookTrain}/>
-                    <FormControlLabel value="Check PNR Status" control={<Radio checked={checkPNR === true} />} label="Check PNR Status"  onClick={handleCheckPNR} />
-                    <FormControlLabel value="Live Train Status" control={<Radio checked={liveTrain === true} />} label="Live Train Status" onClick={handleTrain} />
-                </StylingRadio>
-                <h1 className="pr-10 text-medium font-semibold text-gray-600 mt-2">Train Booking 🤗</h1>
-                
-            </div>
+        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
+            <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
+                {/* Header */}
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 md:px-8 py-6">
+                    <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">Train Booking 🚂</h1>
+                    <StylingRadio
+                        aria-labelledby="demo-radio-buttons-group-label"
+                        defaultValue="female"
+                        name="radio-buttons-group"
+                        className="flex flex-wrap gap-4"
+                    >
+                        <FormControlLabel 
+                            value="Book Train" 
+                            control={<Radio checked={bookTrain === true} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Book Train Tickets</span>} 
+                            onClick={handleBookTrain}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                        <FormControlLabel 
+                            value="Check PNR Status" 
+                            control={<Radio checked={checkPNR === true} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Check PNR Status</span>} 
+                            onClick={handleCheckPNR}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                        <FormControlLabel 
+                            value="Live Train Status" 
+                            control={<Radio checked={liveTrain === true} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Live Train Status</span>} 
+                            onClick={handleTrain}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                    </StylingRadio>
+                </div>
+
+                {/* Form Content */}
+                <div className="p-6 md:p-8">
             {
                 checkPNR ? (
                     <PNRChecker onPnrResult={handlePnrData} onPnrError={handlePnrError}/>
                 ) : liveTrain ? (
                     <LiveTrainChecker onLiveResult={handleLiveData} onLiveError={handleLiveError}/>
                 ) : (
-                <div className="flex flex-col flex-wrap">
-                    <div className="my-10 md:border-2 md:border-gray-300 mx-10 rounded-md">
-                    <div className="flex md:flex-row flex-col flex-wrap justify-around my-4 md:space-y-0 space-y-4">
-                        <div className="text-left md:ml-10">
-                            <h3 className="font-semibold text-gray-800">From</h3>
-                            <select value={fromCity} onChange={(e)=>setFromCity(e.target.value)} className="md:w-36 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                    <option>choose</option>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="text-left">
+                            <h3 className="font-semibold text-gray-800 mb-2">From</h3>
+                            <select value={fromCity} onChange={(e)=>setFromCity(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                    <option value="">Choose Station</option>
                                     {
                                     stations.map((station) =>(
                                         <option key={station._id} value={station.name}>{station.name}</option>
                                     ))}
                             </select>
                         </div>
-                        <div className="text-left md:ml-10">
-                            <h3 className="font-semibold text-gray-800">Destination</h3>
-                            <select value={destination} onChange={(e)=>setDestination(e.target.value)} className="md:w-36 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                    <option>choose</option>
+                        <div className="text-left">
+                            <h3 className="font-semibold text-gray-800 mb-2">Destination</h3>
+                            <select value={destination} onChange={(e)=>setDestination(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                    <option value="">Choose Station</option>
                                     {
                                     stations.map((station) =>(
                                         <option key={station._id} value={station.name}>{station.name}</option>
                                     ))}
                             </select>
                         </div>
-                        <div className="text-left md:ml-10">
-                            <h3 className="font-semibold text-gray-800">Travel Date</h3>
-                            <input type="date" onChange={handleTravelDate}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                        <div className="text-left">
+                            <h3 className="font-semibold text-gray-800 mb-2">Travel Date</h3>
+                            <input type="date" onChange={handleTravelDate} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                         </div>
-                        <div className="text-left md:ml-10">
-                            <h3 className="font-semibold text-gray-800">Class</h3>
-                            <select value={seatingClass} onChange={(e)=>setSeatingClass(e.target.value)} className="md:w-36 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                    <option>choose</option>
+                        <div className="text-left">
+                            <h3 className="font-semibold text-gray-800 mb-2">Class</h3>
+                            <select value={seatingClass} onChange={(e)=>setSeatingClass(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                    <option value="">Choose Class</option>
                                     {
                                     classs.map((item,index) =>(
                                         <option key={index} value={item.value}>{item.value}</option>
@@ -247,25 +262,32 @@ const Trains=()=>{
                             </select>
                         </div>
 
-                        <div className="text-left md:ml-10">
-                            <h3 className="font-semibold text-gray-800">Train Number / Name</h3>
-                            <select value={trainNumber} placeholder="Select Train No." onChange={handleTrainNumber} className="md:w-36 w-56 h-12 text-md font-semibold capitalize cursor-pointer"> 
-                                    <option>choose</option>
+                        <div className="text-left">
+                            <h3 className="font-semibold text-gray-800 mb-2">Train Number / Name</h3>
+                            <select value={trainNumber} placeholder="Select Train No." onChange={handleTrainNumber} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                    <option value="">Choose Train</option>
                                     {
                                     trains.map((item,index) =>(
                                         <option key={index} value={item.name}>{item.number} , {item.name}</option>
                                     ))}
                             </select>
                         </div>
-                    </div>
                 </div>
-            </div>
             )}
+            
             {
                 bookTrain && (
-                    <StylingButton variant="contained" onClick={(e)=>logined ? handlingTrainBooking(e) : alert("You need to login/SignUp first")}>Book Train</StylingButton>
+                    <div className="flex justify-end mt-8">
+                        <button 
+                            onClick={(e)=>logined ? handlingTrainBooking(e) : alert("You need to login/SignUp first")}
+                            className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg"
+                        >
+                            Book Train
+                        </button>
+                    </div>
                 )
             }
+                </div>
             </div>
             <ShowPNRResult pnrResult = {pnrResult} pnrError={pnrError}/>
             <ShowLiveTrainStatus liveResult = {liveResult} liveError={liveError}/>

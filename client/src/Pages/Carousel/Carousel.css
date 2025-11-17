@@ -12,6 +12,19 @@
     border: 2px;
 }
 
+/* Ensure carousel arrows stay below navbar */
+.react-multi-carousel__arrow {
+    z-index: 10 !important;
+}
+
+.react-multi-carousel__arrow--left {
+    z-index: 10 !important;
+}
+
+.react-multi-carousel__arrow--right {
+    z-index: 10 !important;
+}
+
 .stroke {
     color: white;
     letter-spacing: 2px;

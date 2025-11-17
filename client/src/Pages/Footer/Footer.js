@@ -18,29 +18,37 @@ const Footer=()=>{
     }
 
     return(
-        <div>
-            <div className='grid md:grid-cols-4 md:mx-16 md:mt-0 mt-6 pb-6'>
-                <div className='ml-6 text-start space-y-2'>
-                    <h1 className='font-semibold md:text-2xl text-xl text-headingcolor'>MyJourney<span className='text-gray-800'>.com</span></h1>
-                    <h1 className='text-md text-gray-800 w-64'>Enjoy the tourism with myjourney.com</h1>
+        <div className='bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 text-white mt-20'>
+            <div className='grid md:grid-cols-4 md:mx-16 mx-4 md:mt-12 mt-8 md:pb-12 pb-8 pt-12 gap-8'>
+                <div className='text-start space-y-4'>
+                    <h1 className='font-bold md:text-3xl text-2xl bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent'>MyJourney<span className='text-white'>.com</span></h1>
+                    <p className='text-sm text-gray-300 leading-relaxed max-w-xs'>Experience unforgettable journeys with our premium travel services. Your adventure starts here.</p>
                 </div>
-                <div className='md:ml-0 ml-6 text-start'>
-                    <h1 className='font-semibold md:text-2xl text-xl'>Menu</h1>
-                    <h1 className='cursor-pointer' onClick={handleHome}>Home</h1>
-                    <h1 className='cursor-pointer' onClick={handleAbout}>About Us</h1>
+                <div className='text-start space-y-4'>
+                    <h1 className='font-bold md:text-xl text-lg text-white mb-4'>Menu</h1>
+                    <div className='space-y-2'>
+                        <h1 className='text-gray-300 hover:text-indigo-400 cursor-pointer transition-colors duration-200' onClick={handleHome}>Home</h1>
+                        <h1 className='text-gray-300 hover:text-indigo-400 cursor-pointer transition-colors duration-200' onClick={handleAbout}>About Us</h1>
+                    </div>
                 </div>
-                <div className='md:ml-0 ml-6 text-start'>
-                    <h1 className='font-semibold md:text-2xl text-xl'>Booking Plan</h1>
-                    <h1>Group Trip</h1>
-                    <h1>Personal Trip</h1>
+                <div className='text-start space-y-4'>
+                    <h1 className='font-bold md:text-xl text-lg text-white mb-4'>Booking Plan</h1>
+                    <div className='space-y-2'>
+                        <h1 className='text-gray-300 hover:text-indigo-400 cursor-pointer transition-colors duration-200'>Group Trip</h1>
+                        <h1 className='text-gray-300 hover:text-indigo-400 cursor-pointer transition-colors duration-200'>Personal Trip</h1>
+                    </div>
                 </div>
-                <div className='md:ml-0 ml-6 text-start'>
-                    <h1 className='font-semibold md:text-2xl text-xl'>Further Information</h1>
-                    <h1>Terms & Conditions</h1>
-                    <h1>Privacy Policy</h1>
+                <div className='text-start space-y-4'>
+                    <h1 className='font-bold md:text-xl text-lg text-white mb-4'>Further Information</h1>
+                    <div className='space-y-2'>
+                        <h1 className='text-gray-300 hover:text-indigo-400 cursor-pointer transition-colors duration-200'>Terms & Conditions</h1>
+                        <h1 className='text-gray-300 hover:text-indigo-400 cursor-pointer transition-colors duration-200'>Privacy Policy</h1>
+                    </div>
                 </div>
             </div>
-            <h1 className='text-md text-slate-700 py-6'>Copyright <CopyrightIcon/> 2021 MyJourney. All Rights Reserved.</h1>
+            <div className='border-t border-gray-700 py-6'>
+                <h1 className='text-sm text-gray-400 text-center flex items-center justify-center gap-1'>Copyright <CopyrightIcon className='text-xs'/> 2025 MyJourney. All Rights Reserved.</h1>
+            </div>
         </div>
     )
 }

@@ -24,9 +24,11 @@ const Feedback=()=>{
       }
 
     return(
-        <div>
-            <h1 className='text-2xl font-serif font-semibold italic'>Our Customer Feedback</h1>
-            <h1 className='text-md py-2 text-gray-700'>See what our customers told about us</h1>
+        <div className='py-12 px-4 md:px-8'>
+            <div className='text-center mb-12'>
+                <h1 className='text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4'>Our Customer Feedback</h1>
+                <p className='text-lg text-gray-600'>See what our customers told about us</p>
+            </div>
             <Carousel
                 swipeable={false}
                 draggable={false}
@@ -54,16 +56,18 @@ const Feedback=()=>{
                         transition={{
                           ease:"easeInOut",
                           duration:2,
-                        }} className='bg-transparent hover:shadow-xl w-auto ml-4 p-4 rounded-md my-4 border-2 border-cyan-400'>
-                            <div className='flex flex-row'>
-                                <img src={feed.image} className='md:w-16 md:h-16 w-12 h-12 mt-2 rounded-full'/>
-                                <div className='flex flex-col ml-4 text-start mt-2'>
-                                    <h1 className='text-xl font-semibold'>{feed.name}</h1>
-                                    <h1>{feed.city}</h1>
+                        }} className='bg-white hover:shadow-2xl w-auto ml-4 p-6 rounded-2xl my-4 border border-gray-200 transition-all duration-300 transform hover:-translate-y-2'>
+                            <div className='flex flex-row items-center mb-4'>
+                                <img src={feed.image} className='md:w-16 md:h-16 w-12 h-12 rounded-full object-cover border-2 border-indigo-200'/>
+                                <div className='flex flex-col ml-4 text-start flex-1'>
+                                    <h1 className='text-lg font-bold text-gray-800'>{feed.name}</h1>
+                                    <h1 className='text-sm text-gray-500'>{feed.city}</h1>
                                 </div>
-                                <StarIcon className='ml-auto mt-2 text-yellow-300 text-2xl'/>
+                                <div className='flex'>
+                                    <StarIcon className='text-yellow-400 text-2xl'/>
+                                </div>
                             </div>
-                            <h1 className='mt-4 text-justify md:text-md text-normal'>{feed.feed}</h1>
+                            <p className='mt-4 text-justify md:text-base text-sm text-gray-700 leading-relaxed'>{feed.feed}</p>
                         </motion.div>
                     ))
                 }

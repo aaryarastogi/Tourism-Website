@@ -5,6 +5,7 @@ import { Button, FormControlLabel, Radio, RadioGroup, styled } from "@mui/materi
 import axios from "axios";
 import {packages} from './data'
 import backend_url from "../../../config";
+import { useTheme } from "../../../context/ThemeContext";
 
 const StylingRadio=styled(RadioGroup)`
     display:flex;
@@ -12,18 +13,12 @@ const StylingRadio=styled(RadioGroup)`
 `
 
 const StylingButton=styled(Button)(({ theme }) => ({
-    marginLeft:'85%',
-    background: '#374151',
-    [theme.breakpoints.down('md')]: {
-      marginLeft:'65%'
-  },
-  ":hover":{
-    background:'#52525b'
-  }
+    display: 'none'
   }))
 
 
 const Cabs=()=>{
+    const { isDark } = useTheme();
     const [category,setCategory]=useState('Out Station One Way');
     const[OutStationOneway,setOutstationOneway]=useState(true);
     const [OutstationRoundTrip,setOutstationRoundTrip]=useState(false);
@@ -214,134 +209,150 @@ const Cabs=()=>{
     };
     
     return(
-    <div className="w-full h-screen">
-        <div className="w-auto bg-white md:mx-8 rounded-md py-10">
-                <div className="flex flex-row space-x-2 ml-12 justify-between">
+    <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
+        <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
+                {/* Header */}
+                <div className="bg-gradient-to-r from-orange-600 to-red-600 px-6 md:px-8 py-6">
+                    <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">Online Cab Booking 🚗</h1>
                     <StylingRadio
                         aria-labelledby="demo-radio-buttons-group-label"
                         defaultValue="female"
                         name="radio-buttons-group"
+                        className="flex flex-wrap gap-4"
                     >
-                        <FormControlLabel value="Outstation One Way" control={<Radio checked={OutStationOneway === true} />} label="Outstation One-Way" onClick={handleOutstationOneway} />
-                        <FormControlLabel value="Outstation Round Trip" control={<Radio checked={OutstationRoundTrip === true} />} label="Outstation Round-Trip"  onClick={handleOutstationRoundTrip} />
-                        <FormControlLabel value="Airport Transfers" control={<Radio checked={AirportTransfers === true} />} label="Airport Transfers" onClick={handleAirportTransfers} />
-                        <FormControlLabel value="Hourly Rentals" control={<Radio checked={HourlyRentals === true} />} label="Hourly Rentals" onClick={handleHourlyRentals} />
+                        <FormControlLabel 
+                            value="Outstation One Way" 
+                            control={<Radio checked={OutStationOneway === true} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Outstation One-Way</span>} 
+                            onClick={handleOutstationOneway}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                        <FormControlLabel 
+                            value="Outstation Round Trip" 
+                            control={<Radio checked={OutstationRoundTrip === true} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Outstation Round-Trip</span>} 
+                            onClick={handleOutstationRoundTrip}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                        <FormControlLabel 
+                            value="Airport Transfers" 
+                            control={<Radio checked={AirportTransfers === true} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Airport Transfers</span>} 
+                            onClick={handleAirportTransfers}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
+                        <FormControlLabel 
+                            value="Hourly Rentals" 
+                            control={<Radio checked={HourlyRentals === true} sx={{ color: 'white', '&.Mui-checked': { color: '#fbbf24' } }} />} 
+                            label={<span className="text-white font-medium">Hourly Rentals</span>} 
+                            onClick={handleHourlyRentals}
+                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-200"
+                        />
                     </StylingRadio>
-                    <h1 className="pr-10 text-medium font-semibold text-gray-600 mt-2">Online Cab Booking 🤗</h1>
                 </div>
+
+                {/* Form Content */}
+                <div className="p-6 md:p-8">
             {
                 OutStationOneway ? (
-                    <div className="flex flex-col">
-                        <div className="my-10 md:border-2 md:border-gray-300 mx-10 rounded-md">
-                        <div className="flex md:flex-row flex-col flex-wrap justify-around my-4 md:space-y-0 space-y-4">
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">From</h3>
-                                <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                        <option>choose</option>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">From</h3>
+                                <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                        <option value="">Choose City</option>
                                         {
                                         cities.map((city) =>(
-                                            <option value={city}>{city}</option>
+                                            <option key={city} value={city}>{city}</option>
                                         ))
                                         }
                                 </select>
                             </div>
                             
                             {/* destination */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">To</h3>
-                                <select value={destination} onChange={(e)=> setDestination(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                        <option>choose</option>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">To</h3>
+                                <select value={destination} onChange={(e)=> setDestination(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                        <option value="">Choose City</option>
                                         {
                                         cities.map((city) =>(
-                                            <option value={city}>{city}</option>
+                                            <option key={city} value={city}>{city}</option>
                                         ))
                                         }
                                 </select>
                             </div>
 
                             {/* departure-return */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">Departure</h3>
-                                <input type="date" onChange={(e)=> setDepartureDate(e.target.value)}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">Departure</h3>
+                                <input type="date" onChange={(e)=> setDepartureDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                             </div>
 
                             {/* Pickup time */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">PickUp Time</h3>
-                                <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"/>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">PickUp Time</h3>
+                                <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"/>
                             </div>
-
-                            </div>
-                        </div>
                     </div>
                 )
                 : OutstationRoundTrip?(
-                    <div className="flex flex-col">
-                            <div className="my-10 md:border-2 md:border-gray-300 mx-10 rounded-md">
-                            <div className="flex md:flex-row flex-col flex-wrap justify-around my-4 md:space-y-0 space-y-4">
-                                
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {/* from component */}
-                                <div className="text-left md:ml-10">
-                                    <h3 className="font-semibold text-gray-800">From</h3>
-                                    <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                            <option>choose</option>
+                                <div className="text-left">
+                                    <h3 className="font-semibold text-gray-800 mb-2">From</h3>
+                                    <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                            <option value="">Choose City</option>
                                             {
                                             cities.map((city) =>(
-                                                <option value={city}>{city}</option>
+                                                <option key={city} value={city}>{city}</option>
                                             ))
                                             }
                                     </select>
                                 </div>
                                 
                                 {/* destination */}
-                                <div className="text-left md:ml-10">
-                                    <h3 className="font-semibold text-gray-800">To</h3>
-                                    <select value={destination} onChange={(e)=> setDestination(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                            <option>choose</option>
+                                <div className="text-left">
+                                    <h3 className="font-semibold text-gray-800 mb-2">To</h3>
+                                    <select value={destination} onChange={(e)=> setDestination(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                            <option value="">Choose City</option>
                                             {
                                             cities.map((city) =>(
-                                                <option value={city}>{city}</option>
+                                                <option key={city} value={city}>{city}</option>
                                             ))
                                             }
                                     </select>
                                 </div>
 
                                 {/* departure-return */}
-                                <div className="text-left md:ml-10">
-                                    <h3 className="font-semibold text-gray-800">Departure</h3>
-                                    <input type="date" onChange={(e)=> setDepartureDate(e.target.value)}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                                <div className="text-left">
+                                    <h3 className="font-semibold text-gray-800 mb-2">Departure</h3>
+                                    <input type="date" onChange={(e)=> setDepartureDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                                 </div>
 
-                                <div className="text-left md:ml-10">
-                                    <h3 className="font-semibold text-gray-800">Return</h3>
-                                    <input type="date" onChange={(e)=> setReturnDate(e.target.value)}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                                <div className="text-left">
+                                    <h3 className="font-semibold text-gray-800 mb-2">Return</h3>
+                                    <input type="date" onChange={(e)=> setReturnDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                                 </div>
 
                                 {/* Pickup time */}
-                                <div className="text-left md:ml-10">
-                                    <h3 className="font-semibold text-gray-800">PickUp Time</h3>
-                                    <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"/>
+                                <div className="text-left">
+                                    <h3 className="font-semibold text-gray-800 mb-2">PickUp Time</h3>
+                                    <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"/>
                                 </div>
 
                                 {/* Drop time */}
-                                <div className="text-left md:ml-10">
-                                    <h3 className="font-semibold text-gray-800">Drop Time</h3>
-                                    <input type="time" onChange={(e)=> setDropTime(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"/>
+                                <div className="text-left">
+                                    <h3 className="font-semibold text-gray-800 mb-2">Drop Time</h3>
+                                    <input type="time" onChange={(e)=> setDropTime(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"/>
                                 </div>
-
-                            </div>
-                        </div>
                     </div>
                 )
                 :AirportTransfers ?(
-                    <div className="flex flex-col">
-                        <div className="my-10 md:border-2 md:border-gray-300 mx-10 rounded-md">
-                        <div className="flex md:flex-row flex-col flex-wrap justify-around my-4 md:space-y-0 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* from pickup location */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">Airport</h3>
-                                <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                        <option>Pickup Airport Location</option>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">Airport</h3>
+                                <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                        <option value="">Pickup Airport Location</option>
                                         {
                                         airports.map((airport) =>(
                                             <option key={airport.id} value={airport.attributes.name}>{airport.attributes.name}</option>
@@ -351,10 +362,10 @@ const Cabs=()=>{
                             </div>
 
                             {/* city to part */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">To</h3>
-                                <select value={destination} onChange={(e)=> setDestination(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                        <option>Destination Airport Location</option>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">To</h3>
+                                <select value={destination} onChange={(e)=> setDestination(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                        <option value="">Destination Airport Location</option>
                                         {
                                         airports.map((airport) =>(
                                             <option key={airport.id} value={airport.attributes.name}>{airport.attributes.name}</option>
@@ -364,56 +375,50 @@ const Cabs=()=>{
                             </div>
 
                             {/* departure-return */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">Departure</h3>
-                                <input type="date" onChange={(e)=> setDepartureDate(e.target.value)}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">Departure</h3>
+                                <input type="date" onChange={(e)=> setDepartureDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                             </div>
 
                             {/* Pickup time */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">PickUp Time</h3>
-                                <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"/>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">PickUp Time</h3>
+                                <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"/>
                             </div>
-
-                            </div>
-                        </div>
                     </div>
                 )
                 :(
-                    <div className="flex flex-col">
-                        <div className="my-10 md:border-2 md:border-gray-300 mx-10 rounded-md">
-                        <div className="flex md:flex-row flex-col flex-wrap justify-around my-4 md:space-y-0 space-y-4">
-                            
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* PickUp location */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">Pick Up Location</h3>
-                                <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                        <option>Select City</option>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">Pick Up Location</h3>
+                                <select value={fromCity} onChange={(e)=> setFromCity(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                        <option value="">Select City</option>
                                         {
                                             cities.map((city) =>(
-                                                <option value={city}>{city}</option>
+                                                <option key={city} value={city}>{city}</option>
                                             ))
                                         }
                                 </select>
                             </div>
 
                             {/* pick up date */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">Pick Up Date</h3>
-                                <input type="date" onChange={(e)=> setPickupDate(e.target.value)}className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"></input>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">Pick Up Date</h3>
+                                <input type="date" onChange={(e)=> setPickupDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                             </div>
 
                             {/* Pickup time */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">PickUp Time</h3>
-                                <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"/>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">PickUp Time</h3>
+                                <input type="time" onChange={(e)=> setPickupTime(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"/>
                             </div>
 
                             {/* package */}
-                            <div className="text-left md:ml-10">
-                                <h3 className="font-semibold text-gray-800">Packages</h3>
-                                <select value={packageValue} onChange={(e)=> setPackageValue(e.target.value)} className="lg:w-44 w-56 h-12 text-md font-semibold capitalize cursor-pointer border-2 border-gray-50"> 
-                                        <option>Select City</option>
+                            <div className="text-left">
+                                <h3 className="font-semibold text-gray-800 mb-2">Packages</h3>
+                                <select value={packageValue} onChange={(e)=> setPackageValue(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
+                                        <option value="">Select Package</option>
                                         {
                                         packages.map((pack) =>(
                                             <option key={pack.id} value={pack.value}>{pack.value}</option>
@@ -421,13 +426,20 @@ const Cabs=()=>{
                                         }
                                 </select>
                             </div>
-
-                            </div>
-                        </div>
                     </div>
                 )
             }
-            <StylingButton variant="contained" onClick={(e)=> logined ? cabBooking(e) : alert("You need to login/signup...")} type="submit">Book cab</StylingButton>
+            
+            <div className="flex justify-end mt-8">
+                <button 
+                    onClick={(e)=> logined ? cabBooking(e) : alert("You need to login/signup...")} 
+                    type="submit"
+                    className="px-8 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white font-bold rounded-xl hover:from-orange-700 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-lg"
+                >
+                    Book Cab
+                </button>
+            </div>
+                </div>
             </div>
         </div>
     )

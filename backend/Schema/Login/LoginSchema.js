@@ -18,6 +18,14 @@ const LoginSchema=new mongoose.Schema({
         type:Number,
         required:false
     },
+    profileImage:{
+        type:String,
+        required:false
+    },
+    displayUsername:{
+        type:String,
+        required:false
+    },
     tokens:[
         {
             token:{

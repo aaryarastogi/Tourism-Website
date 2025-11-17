@@ -51,39 +51,68 @@ const FlightsTrips=()=>{
         <div className="w-full h-auto">
             {
                 flights.length>0 ? (
-                    <div className="grid md:grid-cols-2 grid-rows justify-around py-24">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {flights.map((fl, index) => (
-                            <div className="flex md:flex-row flex-col">
-                                <img src={flight} className="md:w-80 w-44 md:mx-4 mx-16 my-10 rounded-md"></img>
-                            {
-                                fl.category==="Multi City" ? (
-                                    <div key={index} className="text-start my-20 md:mx-0 mx-16">
-                                        <h1 className="text-xl font-semibold text-gray-600 font-serif">1st Trip : <span>From {fl.fromCity} to {fl.destination}</span></h1> 
-                                        <h1 className="text-xl font-semibold text-gray-600 font-serif">2nd Trip : <span>From{fl.fromCity1}  to {fl.destination1}</span></h1> 
-                                        <h1 className="text-xl font-semibold text-gray-600 font-serif">Timing Details : <span>{fl.departureDate} to {fl.returnDate}</span></h1>
-                                        <h1 className="text-xl font-semibold text-gray-600 font-serif">Category : <span>{fl.category}</span></h1>
+                            <div key={index} className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative">
+                                <button 
+                                    className="absolute top-4 right-4 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all duration-300 hover:scale-110 active:scale-95 shadow-md"
+                                    onClick={()=> handleDelete(fl._id)}
+                                    title="Delete Booking"
+                                >
+                                    <DeleteIcon/>
+                                </button>
+                                
+                                <div className="flex flex-col md:flex-row gap-4">
+                                    <div className="flex-shrink-0">
+                                        <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                                            <img src={flight} className="w-16 h-16 filter brightness-0 invert" alt="Flight"/>
+                                        </div>
                                     </div>
-                                ):(
-                                    <div key={index} className="text-start my-20 md:mx-0 mx-16">
-                                        <h1 className="text-xl font-semibold text-gray-600 font-serif">From : <span>{fl.fromCity}</span></h1> 
-                                        <h1 className="text-xl font-semibold text-gray-600 font-serif">To : <span>{fl.destination}</span></h1> 
+                                    
+                                    <div className="flex-1">
                                         {
-                                            fl.category === "One Way" ? (
-                                                <h1 className="text-xl font-semibold text-gray-600 font-serif">Timing Details : <span>{fl.departureDate}</span></h1>
-                                            ):
-                                            (
-                                                <h1 className="text-xl font-semibold text-gray-600 font-serif">Timing Details : <span>{fl.departureDate} to {fl.returnDate}</span></h1>
+                                            fl.category==="Multi City" ? (
+                                                <div className="space-y-2">
+                                                    <div className="inline-block px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full mb-3">{fl.category}</div>
+                                                    <div className="bg-white/80 rounded-lg p-3 mb-2">
+                                                        <p className="text-sm text-gray-600 mb-1">1st Trip</p>
+                                                        <p className="font-bold text-gray-800">{fl.fromCity} → {fl.destination}</p>
+                                                    </div>
+                                                    <div className="bg-white/80 rounded-lg p-3 mb-2">
+                                                        <p className="text-sm text-gray-600 mb-1">2nd Trip</p>
+                                                        <p className="font-bold text-gray-800">{fl.fromCity1} → {fl.destination1}</p>
+                                                    </div>
+                                                    <div className="flex gap-4 text-sm text-gray-600">
+                                                        <span className="font-medium">Departure: {fl.departureDate}</span>
+                                                        <span className="font-medium">Return: {fl.returnDate}</span>
+                                                    </div>
+                                                </div>
+                                            ):(
+                                                <div className="space-y-2">
+                                                    <div className="inline-block px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full mb-3">{fl.category}</div>
+                                                    <div className="bg-white/80 rounded-lg p-3 mb-2">
+                                                        <p className="text-sm text-gray-600 mb-1">Route</p>
+                                                        <p className="font-bold text-lg text-gray-800">{fl.fromCity} → {fl.destination}</p>
+                                                    </div>
+                                                    {
+                                                        fl.category === "One Way" ? (
+                                                            <p className="text-sm text-gray-600"><span className="font-semibold">Departure:</span> {fl.departureDate}</p>
+                                                        ):
+                                                        (
+                                                            <div className="flex gap-4 text-sm text-gray-600">
+                                                                <span className="font-medium">Departure: {fl.departureDate}</span>
+                                                                <span className="font-medium">Return: {fl.returnDate}</span>
+                                                            </div>
+                                                        )
+                                                    }
+                                                    {fl.flight && (
+                                                        <p className="text-sm text-gray-600 mt-2"><span className="font-semibold">Flight:</span> {fl.flight}</p>
+                                                    )}
+                                                </div>
                                             )
                                         }
-                                        <h1 className="text-xl font-semibold text-gray-600 font-serif">Category : <span>{fl.category}</span></h1>
                                     </div>
-                                )
-                            }
-                            <button className="p-2 w-10 h-10 rounded-full bg-red-500 text-white transition-all duration-300 hover:bg-red-600 hover:scale-105 active:scale-95 active:bg-red-700"
-                            onClick={()=> handleDelete(fl._id)}
-                            >
-                                <DeleteIcon/>
-                            </button>
+                                </div>
                             </div>
                     ))}
                     </div>

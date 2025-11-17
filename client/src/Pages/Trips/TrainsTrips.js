@@ -48,33 +48,53 @@ const TrainsTrips=()=>{
       }
 
     return(
-        <>
+        <div className="w-full h-auto">
             {
                 trains.length>0 ? (
-                    trains.map((tr,idx)=>(
-                        <div className="grid grid-cols-2 justify-around py-24">
-                            <div className="flex flex-row">
-                                <img src={train} className="w-80 mx-4 my-10 rounded-md"></img>
-                                <div className="text-start my-20" key={idx}>
-                                    <h1 className="text-xl font-semibold text-gray-600 font-serif">From : <span>{tr.fromCity}</span></h1> 
-                                    <h1 className="text-xl font-semibold text-gray-600 font-serif">To : <span>{tr.destination}</span></h1> 
-                                    <h1 className="text-xl font-semibold text-gray-600 font-serif">Train : <span>{tr.trainNumber}</span></h1> 
-                                    <h1 className="text-xl font-semibold text-gray-600 font-serif">Timing Details : <span>{tr.travelDate}</span></h1>
-                                    <h1 className="text-xl font-semibold text-gray-600 font-serif">Class : <span>{tr.seatingClass}</span></h1>
-                                </div> 
-                            </div>
-                            <button className="p-2 w-10 h-10 rounded-full bg-red-500 text-white transition-all duration-300 hover:bg-red-600 hover:scale-105 active:scale-95 active:bg-red-700"
-                            onClick={()=> handleDelete(tr._id)}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {trains.map((tr,idx)=>(
+                        <div key={idx} className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-200/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative">
+                            <button 
+                                className="absolute top-4 right-4 p-2 rounded-full bg-red-500 text-white hover:bg-red-600 transition-all duration-300 hover:scale-110 active:scale-95 shadow-md"
+                                onClick={()=> handleDelete(tr._id)}
+                                title="Delete Booking"
                             >
                                 <DeleteIcon/>
-                            </button>    
+                            </button>
+                            
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="flex-shrink-0">
+                                    <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                                        <img src={train} className="w-16 h-16 filter brightness-0 invert" alt="Train"/>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex-1 space-y-2">
+                                    <div className="bg-white/80 rounded-lg p-3 mb-2">
+                                        <p className="text-sm text-gray-600 mb-1">Route</p>
+                                        <p className="font-bold text-lg text-gray-800">{tr.fromCity} → {tr.destination}</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-sm">
+                                        <div className="bg-white/80 rounded-lg p-2">
+                                            <p className="text-gray-600 text-xs mb-1">Train</p>
+                                            <p className="font-semibold text-gray-800">{tr.trainNumber}</p>
+                                        </div>
+                                        <div className="bg-white/80 rounded-lg p-2">
+                                            <p className="text-gray-600 text-xs mb-1">Class</p>
+                                            <p className="font-semibold text-gray-800">{tr.seatingClass}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-gray-600"><span className="font-semibold">Travel Date:</span> {tr.travelDate}</p>
+                                </div>
+                            </div>
                         </div>     
-                    ))
+                    ))}
+                    </div>
                 ):(
                     <NoBookings/>
                 )
             }                   
-        </>
+        </div>
     )
 }
 

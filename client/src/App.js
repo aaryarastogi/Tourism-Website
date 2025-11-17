@@ -16,9 +16,13 @@ import NotFound from './Pages/NotFound';
 import PlaceDetail from './Pages/Explore/PlaceDetail';
 import ChatBot from './Pages/Chatbot/Chatbot';
 
+import { useTheme } from './context/ThemeContext';
+
 function App() {
+  const { isDark } = useTheme();
+  
   return (
-    <div className="App bg-gradient-to-tr from-[#FA8BFF] via-[#2BD2FF] to-[#2BFF88]">
+    <div className={`App min-h-screen transition-colors duration-300 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
         <Navbar/>
         <Routes>
           <Route path='/' element={<Main/>}></Route>

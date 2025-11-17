@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import {motion} from 'framer-motion'
 import axios from 'axios'
 import backend_url from '../../config';
+import { useTheme } from '../../context/ThemeContext';
 
 const SearchStyle=styled(TextField)(({ theme }) => ({
     marginLeft:'auto',
@@ -22,6 +23,7 @@ const SearchStyle=styled(TextField)(({ theme }) => ({
 }))
 
 const Explore =()=>{
+    const { isDark } = useTheme();
     const responsive = {
         desktop: {
           breakpoint: { max: 3000, min: 1024 },
@@ -49,12 +51,12 @@ const Explore =()=>{
     const[search,setSearch]=useState('');
 
     return(
-        <div id='discover'>
-            <div className='flex flex-row py-6'>
-                <h1 className='text-start md:ml-10 ml-2 capitalize md:text-3xl text-xl font-semibold font-serif'>Find Popular Destinations</h1>
+        <div id='discover' className='py-12 px-4 md:px-8'>
+            <div className='flex flex-col md:flex-row md:items-center md:justify-between py-6 mb-8'>
+                <h1 className='text-start md:ml-10 ml-2 capitalize md:text-4xl text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4 md:mb-0'>Find Popular Destinations</h1>
                 <SearchStyle 
                     onChange={(e)=>setSearch(e.target.value)}
-                    id="standard-search" label="Search" type="search" variant="standard"
+                    id="standard-search" label="Search destinations..." type="search" variant="standard"
                 />
             </div>
             <Carousel
@@ -96,10 +98,15 @@ const Explore =()=>{
                                 ease:"easeInOut",
                                 duration:1,
                                 }}
-                                 className='ml-4 rounded-md bg-transparent space-y-4 py-4 px-6 drop-shadow-md w-auto h-auto my-8 cursor-pointer'>
-                                <img src={place.image} className='w-9/12 h-36 mx-auto rounded-t-full'></img>
-                                <h1 className='text-md mx-2 text-center font-bold uppercase'>{place.name}</h1>
-                                <p className='text-sm mx-2 text-center font-semibold text-gray-600'>{place.city}</p>
+                                 className={`ml-4 rounded-2xl ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-lg hover:shadow-2xl space-y-4 py-6 px-6 w-auto h-auto my-8 cursor-pointer group transition-all duration-300 transform hover:-translate-y-2 border overflow-hidden`}>
+                                <div className='relative overflow-hidden rounded-xl'>
+                                    <img src={place.image} className='w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500'></img>
+                                    <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'></div>
+                                </div>
+                                <div className='space-y-1'>
+                                    <h1 className={`text-lg mx-2 text-center font-bold ${isDark ? 'text-gray-200 group-hover:text-indigo-400' : 'text-gray-800 group-hover:text-indigo-600'} transition-colors duration-300`}>{place.name}</h1>
+                                    <p className={`text-sm mx-2 text-center font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{place.city}</p>
+                                </div>
                             </motion.div>
                         </Link>
                     ))

@@ -10,7 +10,7 @@ import { handleFlightBookGetData, handleFlightBookingDelete, handleFlightBookPos
 import { handleTrainBookGetData, handleTrainBookingDelete, handleTrainBookPostData , handlepnrPostData, handlepnrGetData, handleLiveTrainPostData, handleLiveTrainGetData } from "./controllers/trainbooking.js";
 import { handleHotelBookGetData, handleHotelBookingDelete, handleHotelBookPostData } from "./controllers/hotelbooking.js";
 import { handleCabBookDelete, handleCabBookGetData, handleCabBookPostData } from "./controllers/cabbooking.js";
-import { handleUser } from "./controllers/user.js";
+import { handleUser, updateUser } from "./controllers/user.js";
 import { getCities , addCity } from "./controllers/cityController.js"
 import {addHotel} from "./controllers/hotelController.js"
 import { addAirport, getAirports } from "./controllers/airports.js";
@@ -44,6 +44,7 @@ app.use(session({
     }
 }));
 
+// CORS configuration
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader(
@@ -53,8 +54,15 @@ app.use((req, res, next) => {
   
     res.setHeader(
       "Access-Control-Allow-Methods",
-      "GET, POST, PATCH, DELETE, OPTIONS"
+      "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     );
+    
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  
+    // Handle preflight requests
+    if (req.method === "OPTIONS") {
+      return res.status(200).end();
+    }
   
     next();
 });
@@ -70,6 +78,7 @@ app.post("/",(req,res)=>{
 })
 
 app.get('/user', authenticateToken,handleUser)
+app.put('/user', authenticateToken, updateUser)
 
 //for signin
 app.get("/signin",cors(),(req,res)=>{

@@ -1,7 +1,8 @@
 .react-multiple-carousel__arrow {
     background-color: #000; 
     color: #ffffff;
-    font-size: 24px; 
+    font-size: 24px;
+    z-index: 10 !important;
   }
 
   .react-multiple-carousel__arrow:hover{
