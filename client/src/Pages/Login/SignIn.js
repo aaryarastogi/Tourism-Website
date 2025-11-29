@@ -84,6 +84,8 @@ const SignIn=()=>{
         }
     }
 
+    console.log(localStorage.getItem('token'));
+
     const responseSuccessGoogle = async (credentialResponse) => {
         try {
             console.log("Google credential:", credentialResponse);
@@ -122,17 +124,17 @@ const SignIn=()=>{
     };
 
     return(
-        <motion.div className="w-full md:h-screen h-auto"
+        <motion.div className="w-full md:h-screen h-auto py-8"
         initial="initial"
         animate="in"
         exit="out"
         variants={pageVariants}
         style={{ perspective: 2000 }}>
-            <div className='grid md:grid-cols-2 md:w-7/12 w-auto md:h-auto md:ml-auto md:mr-auto md:shadow-xl rounded-xl '>
+            <div className='grid md:grid-cols-2 md:w-7/12 w-auto md:h-auto md:ml-auto md:mr-auto md:shadow-xl rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600'>
                 
                 <div className=" flex flex-col text-start bg-white rounded-tl-xl rounded-bl-xl">
                 <div className="my-16 space-y-4 items-center justify-center text-center">
-                    <h1 className="text-3xl font-bold text-green-600">Sign in to myjourney</h1>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Sign in to myjourney</h1>
                     <GoogleOAuthProvider clientId="297704508492-ci2ff1dipf6i9sliop0m02k2pqtcdalo.apps.googleusercontent.com">
                     <div className="cursor-pointer mx-[20%]">
                         <GoogleLogin
@@ -146,8 +148,8 @@ const SignIn=()=>{
                     <h1 className="text-md text-gray-500">or use your email account</h1>
                     <EmailStyling label="Email" variant="outlined" value={email} onChange={e=> setEmail(e.target.value)} />
                     <EmailStyling  label="Password"  type="password" variant="outlined" value={password} onChange={e=> setPassword(e.target.value)}/>
-                    <h1 className="mx-auto text-gray-600 cursor-pointer">Forgot your password</h1>
-                    <div className="uppercase p-2 font-semibold text-white text-xl cursor-pointer bg-gradient-to-br from-[#2AD883] to-[#0575E6] rounded-full px-8 w-36 mx-auto" onClick={submit}>Sign in</div>
+                    <h1 className="mx-auto text-gray-600 cursor-pointer" onClick={()=> navigate('/reset-password')}>Forgot your password</h1>
+                    <div className="uppercase p-2 font-semibold text-white text-xl cursor-pointer bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full px-8 w-36 mx-auto" onClick={submit}>Sign in</div>
                 </div>
                 </div>
                 

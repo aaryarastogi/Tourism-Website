@@ -17,6 +17,8 @@ import PlaceDetail from './Pages/Explore/PlaceDetail';
 import ChatBot from './Pages/Chatbot/Chatbot';
 
 import { useTheme } from './context/ThemeContext';
+import ResetPassword from './Pages/Login/ResetPassword';
+import ForgotPassword from './Pages/Login/ForgotPassword';
 
 function App() {
   const { isDark } = useTheme();
@@ -36,6 +38,8 @@ function App() {
           <Route path='/mytrips' element={<MyTrips/>}></Route>
           <Route path='/myprofile' element={<MyAccount/>}></Route>
           <Route path='/registered' element={<Registered/>}></Route>
+          <Route path="/reset-password" element={<ForgotPassword/>}></Route>
+          <Route path='/user/reset/:id/:token' element={<ResetPassword/>}></Route>
           <Route path="/place/:id" element={<PlaceDetail/>} />
           <Route path='/*' element={<NotFound/>}></Route>
         </Routes>

@@ -33,7 +33,13 @@ const LoginSchema=new mongoose.Schema({
                 required:true
             }
         }
-    ]
+    ],
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpire:{
+        type: Date
+    }
 })
 
 LoginSchema.methods.generateAuthToken = async function() {

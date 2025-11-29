@@ -100,8 +100,10 @@ const Flights = () => {
         alert("Flight booking failed. Please check the details.");
       } else {
         alert("Successfully, your flight is booked...");
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
         setForm({ ...defaultForm });
-        window.location.reload();
       }
     } catch (e) {
       alert("An error occurred while booking the flight. Please try again.");

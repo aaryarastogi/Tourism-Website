@@ -109,13 +109,13 @@ const Login=()=>{
     };
 
     return(
-        <motion.div className="w-full md:h-screen h-auto"
+        <motion.div className="w-full md:h-screen h-auto py-8"
         initial="initial"
         animate="in"
         exit="out"
         variants={pageVariants}
         style={{ perspective: 2000 }}>
-            <div className='grid md:grid-cols-2 md:w-7/12 md:h-auto md:ml-auto md:mr-auto md:shadow-xl rounded-xl '>
+            <div className='grid md:grid-cols-2 md:w-7/12 md:h-auto md:ml-auto md:mr-auto md:shadow-xl rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600'>
                 <div className="md:my-auto my-16 space-y-6">
                     <h1 className="font-bold capitalize text-white text-3xl">Welcome Back!</h1>
                     <h1 className="text-white text-md ">To keep connected with us please login with your personal info</h1>
@@ -124,7 +124,7 @@ const Login=()=>{
                 
                 <div className="flex flex-col items-center justify-center text-center bg-white rounded-tr-xl rounded-br-xl">
                 <div className="my-16 space-y-4">
-                    <h1 className="text-3xl font-bold text-green-600">Create Account</h1>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Create Account</h1>
                     <GoogleOAuthProvider clientId="297704508492-ci2ff1dipf6i9sliop0m02k2pqtcdalo.apps.googleusercontent.com">
                     <div className="cursor-pointer mx-[20%]">
                         <GoogleLogin
@@ -139,7 +139,7 @@ const Login=()=>{
                     <EmailStyling label="Email" required={true} variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} />
                     <EmailStyling label="Password" variant="outlined" value={password} type="password" onChange={(e) => setPassword(e.target.value)}/>
                     <EmailStyling label="Phone Number" required={true} variant="outlined" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}/>
-                    <div className="uppercase p-2 font-semibold text-white text-xl cursor-pointer bg-gradient-to-br from-[#2AD883] to-[#0575E6] rounded-full px-8 w-36 mx-auto" onClick={submitSignup}>Sign Up</div>
+                    <div className="uppercase p-2 font-semibold text-white text-xl cursor-pointer bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full px-8 w-36 mx-auto" onClick={submitSignup}>Sign Up</div>
                 </div>
                 </div>
             </div>

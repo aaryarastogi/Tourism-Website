@@ -47,6 +47,7 @@ const Explore =()=>{
           .then(response => setPlaces(response.data))
           .catch(error => console.error(error));
       }, []);
+      console.log(places);
 
     const[search,setSearch]=useState('');
 

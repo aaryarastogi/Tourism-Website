@@ -21,6 +21,7 @@ import { getAllPlaces, getParticularPlaceDetail, putPlace } from "./controllers/
 import { handleLogout } from "./controllers/logout.js";
 import { chatbot } from "./controllers/chatbot.js";
 import dotenv from 'dotenv';
+import { forgetPassword, forgetPasswordEmail } from "./controllers/password.js";
 
 const app= express();
 app.use(express.json());
@@ -96,6 +97,10 @@ app.post("/signup", handleSignUp)
 app.post('/logout', authenticateToken, handleLogout);
 
 app.post('/api/authenticate', googleAuthenticateUser);
+
+//forget password routes
+app.post("/forget-password", forgetPassword);
+app.post("/forget-password/:id/:token", forgetPasswordEmail);
 
 //for flight booking
 app.get("/flightbooking", authenticateToken, handleFlightBookGetData);
