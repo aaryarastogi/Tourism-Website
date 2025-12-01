@@ -97,7 +97,7 @@ const Explore =()=>{
                                 opacity:0}}
                                 transition={{
                                 ease:"easeInOut",
-                                duration:1,
+                                duration:0.5,
                                 }}
                                  className={`ml-4 rounded-2xl ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} shadow-lg hover:shadow-2xl space-y-4 py-6 px-6 w-auto h-auto my-8 cursor-pointer group transition-all duration-300 transform hover:-translate-y-2 border overflow-hidden`}>
                                 <div className='relative overflow-hidden rounded-xl'>

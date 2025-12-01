@@ -45,18 +45,12 @@ const Feedback=()=>{
             >
                 {
                     feeddata.map(feed=>(
-                        <motion.div 
-                        initial={{
-                            opacity:0,
-                            x:-10
-                        }}
-                        whileInView={{ opacity: 1 , x:0}}
-                        exit={{
-                          opacity:0}}
-                        transition={{
-                          ease:"easeInOut",
-                          duration:2,
-                        }} className='bg-white hover:shadow-2xl w-auto ml-4 p-6 rounded-2xl my-4 border border-gray-200 transition-all duration-300 transform hover:-translate-y-2'>
+                        <motion.div
+                            initial={{ opacity: 0, x: -10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ ease: "easeInOut", duration: 1.2 }}
+                            viewport={{ once: true, amount: 0.3 }}
+                            className='bg-white hover:shadow-2xl w-auto ml-4 p-6 rounded-2xl my-4 border border-gray-200 transition-all duration-300 transform hover:-translate-y-2'>
                             <div className='flex flex-row items-center mb-4'>
                                 <img src={feed.image} className='md:w-16 md:h-16 w-12 h-12 rounded-full object-cover border-2 border-indigo-200'/>
                                 <div className='flex flex-col ml-4 text-start flex-1'>
