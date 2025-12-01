@@ -1,29 +1,29 @@
 export const prices=[
     {
-        value:'Rs 0 - Rs 1500'
+        value:1500
     },
     {
-        value:'Rs 1500 - Rs 2500'
+        value:2000
     },
     {
-        value:'Rs 2500 - Rs 5000'
+        value:5000
     },
     {
-        value:'Rs 5000+'
+        value:1000
     },
 ]
 
 export const rooms=[
     {
-        value : '1 Room'
+        value : 'Room with sofa'
     } , 
     {
-        value : '2 Room'
+        value : 'Room with table & chair'
     } , {
-        value : '3 Room'
+        value : 'Room with kitchen'
     } , {
-        value : '4 Room'
+        value : 'Room with hall'
     } , {
-        value : '1 Room with hall'
+        value : 'Room with hall,kitchen,table & chair'
     }
 ]

@@ -20,7 +20,7 @@ export async function handleFlightBookGetData(req, res){
 }
   
 export async function handleFlightBookPostData(req, res) {
-    const { email, category, fromCity, fromCity1, destination, destination1, flight, departureDate, returnDate } = req.body;
+    const { email, category, fromCity, fromCity1, destination, destination1, flight, departureDate, returnDate, numberOfTickets, price } = req.body;
   
     const data = {
       email: email,
@@ -32,6 +32,8 @@ export async function handleFlightBookPostData(req, res) {
       flight: flight,
       departureDate: departureDate,
       returnDate: returnDate,
+      numberOfTickets: numberOfTickets || 1,
+      price: price || 5000,
     };
     console.log('data', data);
     

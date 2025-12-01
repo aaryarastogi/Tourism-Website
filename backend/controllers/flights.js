@@ -11,7 +11,7 @@ export async function getFlights(req, res){
 }
 
 export async function addFlight(req, res) {
-  const { airline, flightNumber, departureAirport, arrivalAirport, departureTime, arrivalTime } = req.body;
+  const { airline, flightNumber, departureAirport, arrivalAirport, departureTime, arrivalTime, price } = req.body;
   
   try {
       const departureAirportDoc = await Airport.findById(departureAirport);
@@ -21,7 +21,15 @@ export async function addFlight(req, res) {
           return res.status(404).json({ success: false, message: "Airport not found..." });
       }
 
-      const flight = new Flight({ airline, flightNumber, departureAirport, arrivalAirport, departureTime, arrivalTime });
+      const flight = new Flight({ 
+        airline, 
+        flightNumber, 
+        departureAirport, 
+        arrivalAirport, 
+        departureTime, 
+        arrivalTime,
+        price: price || 5000
+      });
       const newFlight = await flight.save();
 
       departureAirportDoc.flights.push(newFlight._id);

@@ -4,7 +4,7 @@ import { PNR } from "../Schema/Trains/PNRSchema.js";
 import { LiveTrain } from "../Schema/Trains/LiveTrainSchema.js";
 
 export async function handleTrainBookPostData(req,res){
-    const {email,category,fromCity,destination,travelDate,trainNumber,seatingClass}=req.body;
+    const {email,category,fromCity,destination,travelDate,trainNumber,seatingClass,numberOfTickets,price}=req.body;
     const data={
         email:email,
         category:category,
@@ -12,9 +12,11 @@ export async function handleTrainBookPostData(req,res){
         destination:destination,
         travelDate:travelDate,
         trainNumber:trainNumber,
-        seatingClass:seatingClass
+        seatingClass:seatingClass,
+        numberOfTickets:numberOfTickets || 1,
+        price:price || 1500
     }
-    if(!email || !category || !fromCity || !destination || !travelDate || !trainNumber || !seatingClass){
+    if(!email || !category || !fromCity || !destination || !travelDate || !trainNumber || !seatingClass || !numberOfTickets || !price){
         return res.status(400).json({
             success: false,
             message: "Kindly fill all the details!!!",

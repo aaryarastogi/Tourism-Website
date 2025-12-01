@@ -36,6 +36,19 @@ const cabBookSchema=new mongoose.Schema({
     packageValue:{
         type:String,
         required:false
+    },
+    numberOfBookings:{
+        type:Number,
+        required:true,
+        default:1
+    },
+    distance:{
+        type:Number,
+        required:false
+    },
+    price:{
+        type:Number,
+        required:true
     }
 })
 

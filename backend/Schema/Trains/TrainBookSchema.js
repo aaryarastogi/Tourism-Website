@@ -29,6 +29,15 @@ const trainBookSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    numberOfTickets:{
+        type:Number,
+        required:true,
+        default:1
+    },
+    price:{
+        type:Number,
+        required:true
+    }
 })
 
 const trainBookCollection=mongoose.model("trainBookCollection",trainBookSchema);

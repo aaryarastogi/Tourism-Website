@@ -8,7 +8,7 @@ import ShowPNRResult from "./pnrPart/ShowPNRResult";
 import { classs , liveTrainStatus } from "./data";
 import LiveTrainChecker from "./liveTrainPart/LiveTrainChecker";
 import ShowLiveTrainStatus from "./liveTrainPart/ShowLiveTrainStatus";
-import backend_url from "../../../config";
+import backend_url, { razorkey_id } from "../../../config";
 import { useTheme } from "../../../context/ThemeContext";
 
 const StylingRadio=styled(RadioGroup)`
@@ -73,6 +73,11 @@ const Trains=()=>{
     setSeatingClass(e.target.value)
     }
 
+    const[numberOfTickets,setNumberOfTickets]=useState(1);
+    const handleNumberOfTickets=(e)=>{
+    setNumberOfTickets(parseInt(e.target.value) || 1)
+    }
+
     const [travelDate,setTravelDate] = useState(new Date())
     const handleTravelDate = (e) => {
         setTravelDate(new Date(e.target.value));
@@ -106,37 +111,118 @@ const Trains=()=>{
         window.scrollTo(1,1);
       },[])
 
-    const handlingTrainBooking=async(e)=>{
-        e.preventDefault();
-        try{
-            const currDateObj = new Date();
-            if (travelDate.setHours(0, 0, 0, 0) < currDateObj.setHours(0, 0, 0, 0)) {
-                alert("Travel date cannot be earlier than current date.");
-                return;
-            }
-            if (fromCity === destination) {
-                alert("Kindly fill correct details! Current city and destination can never be the same.");
-                return;
-            }
 
-            const response = await axios.post(`${backend_url}/trainbooking`,{
-                email,category,fromCity,destination,travelDate,trainNumber,seatingClass
-            })
-            console.log(response.data);
-            if (response.data === "fail") {
-                alert("Train ticket booking failed. Please check the details.");
-                console.log("boooking failed...");
-            } else {
-                alert("Successfully, your train ticket is booked...");
-                setData(response.data);
-                window.location.reload();
-            }
+const handlingTrainBooking = async (e) => {
+    e.preventDefault();
+
+    try {
+        const currDateObj = new Date();
+        if (travelDate.setHours(0, 0, 0, 0) < currDateObj.setHours(0, 0, 0, 0)) {
+            alert("Travel date cannot be earlier than today.");
+            return;
         }
-        catch(e){
-            alert("Train ticket booking failed. Please check the details.");
-            console.log('book train failed',e);
+        if (fromCity === destination) {
+            alert("Source and destination cannot be the same.");
+            return;
         }
+
+        if (!logined) {
+            alert("Please login first to book train tickets.");
+            return;
+        }
+
+        if (!seatingClass || seatingClass === "All Class" || !trainNumber) {
+            alert("Please select train and seating class.");
+            return;
+        }
+
+        if (!numberOfTickets || numberOfTickets < 1) {
+            alert("Please enter a valid number of tickets (at least 1)!");
+            return;
+        }
+        const selectedTrain = allTrains.find(t => t.name === trainNumber || t.number === trainNumber);
+        if (!selectedTrain) {
+            alert("Selected train not found.");
+            return;
+        }
+        const classPriceMap = {
+            "Sleeper Class": selectedTrain.pricing?.sleeperClass || 500,
+            "Third AC": selectedTrain.pricing?.thirdAC || 1200,
+            "Second AC": selectedTrain.pricing?.secondAC || 2000,
+            "First AC": selectedTrain.pricing?.firstAC || 3500,
+            "Second Seating": selectedTrain.pricing?.secondSeating || 400,
+            "Vistadome AC": selectedTrain.pricing?.vistadomeAC || 2500,
+            "AC Chair Car": selectedTrain.pricing?.acChairCar || 1500
+        };
+
+        const pricePerTicket = classPriceMap[seatingClass] || 1500;
+        const amount = pricePerTicket * numberOfTickets;
+        const orderRes = await axios.post(`${backend_url}/create-order`, {
+            amount,
+            bookingType: "train",
+        });
+
+        const order  = orderRes.data;
+        const options = {
+            key: razorkey_id, 
+            amount: order.amount,
+            currency: order.currency,
+            name: "Tourism App",
+            description: "Train Ticket Booking Payment",
+            order_id: order.id,
+
+            handler: async function (response) {
+                try {
+                    const verifyRes = await axios.post(`${backend_url}/verify-payment`, {
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature,
+                    });
+
+                    if (verifyRes.data.status === "success") {
+                        const bookingRes = await axios.post(`${backend_url}/trainbooking`, {
+                            email,
+                            category,
+                            fromCity,
+                            destination,
+                            travelDate,
+                            trainNumber,
+                            seatingClass,
+                            numberOfTickets,
+                            price: amount,
+                            payment_id: response.razorpay_payment_id,
+                        });
+
+                        if (bookingRes.data === "fail") {
+                            alert("Train booking failed after payment.");
+                        } else {
+                            alert("Your train booking is confirmed!");
+                            window.location.reload();
+                        }
+                    } else {
+                        alert("Payment verification failed.");
+                    }
+                } catch (err) {
+                    console.log(err);
+                    alert("Something went wrong after payment.");
+                }
+            },
+            prefill: {
+                name: email,
+                email: email,
+            },
+            theme: {
+                color: "#3399cc",
+            },
+        };
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
+    } catch (err) {
+        console.log(err);
+        alert("Payment or booking failed.");
     }
+};
+
     const[stations,setStations]=useState([]);
     const fetchAllStations = async () => {
     try {
@@ -148,6 +234,19 @@ const Trains=()=>{
     };
     useEffect(()=> fetchAllStations , [])
     const[trains,setTrains]=useState([]);
+    const[allTrains,setAllTrains]=useState([]);
+    useEffect(() => {
+        const fetchAllTrains = async () => {
+            try {
+                const res = await axios.get(`${backend_url}/api/trains`);
+                setAllTrains(res.data.data || []);
+            } catch (e) {
+                console.error("Error fetching trains:", e);
+            }
+        };
+        fetchAllTrains();
+    }, []);
+
     useEffect(() => {
         const fromCityBasedStation = stations.find((station) => station.name === fromCity);
         const destinationBasedStation = stations.find((station) => station.name === destination);
@@ -156,13 +255,19 @@ const Trains=()=>{
             const commonTrains = fromCityBasedStation.trains.filter((train) =>
                 destinationBasedStation.trains.some((destTrain) => destTrain.id === train.id)
             );
-            console.log("fromCityBasedStation" , fromCityBasedStation);
-            console.log("destinationBasedStation" , destinationBasedStation);
-            setTrains(commonTrains); 
+            const trainsWithData = commonTrains.map(train => {
+                const trainId = typeof train === 'object' ? (train._id || train) : train;
+                const fullTrain = allTrains.find(at => 
+                    at._id?.toString() === trainId.toString() || 
+                    at.number === (typeof train === 'object' ? train.number : null)
+                );
+                return fullTrain || (typeof train === 'object' ? train : null);
+            }).filter(Boolean);
+            setTrains(trainsWithData); 
         } else {
             setTrains([]);
         }
-    }, [fromCity, destination]);
+    }, [fromCity, destination, stations, allTrains]);
 
     const [pnrResult, setPnrResult] = useState(null);
     const [pnrError, setPnrError] = useState("");
@@ -185,7 +290,6 @@ const Trains=()=>{
     return(
         <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
             <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
-                {/* Header */}
                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 md:px-8 py-6">
                     <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">Train Booking 🚂</h1>
                     <StylingRadio
@@ -218,7 +322,6 @@ const Trains=()=>{
                     </StylingRadio>
                 </div>
 
-                {/* Form Content */}
                 <div className="p-6 md:p-8">
             {
                 checkPNR ? (
@@ -226,6 +329,7 @@ const Trains=()=>{
                 ) : liveTrain ? (
                     <LiveTrainChecker onLiveResult={handleLiveData} onLiveError={handleLiveError}/>
                 ) : (
+                <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <div className="text-left">
                             <h3 className="font-semibold text-gray-800 mb-2">From</h3>
@@ -267,12 +371,72 @@ const Trains=()=>{
                             <select value={trainNumber} placeholder="Select Train No." onChange={handleTrainNumber} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"> 
                                     <option value="">Choose Train</option>
                                     {
-                                    trains.map((item,index) =>(
-                                        <option key={index} value={item.name}>{item.number} , {item.name}</option>
-                                    ))}
+                                    trains.map((item,index) => {
+                                        if (!item || !item.name) return null;
+                                        const classPriceMap = {
+                                            "Sleeper Class": item.pricing?.sleeperClass || 500,
+                                            "Third AC": item.pricing?.thirdAC || 1200,
+                                            "Second AC": item.pricing?.secondAC || 2000,
+                                            "First AC": item.pricing?.firstAC || 3500,
+                                            "Second Seating": item.pricing?.secondSeating || 400,
+                                            "Vistadome AC": item.pricing?.vistadomeAC || 2500,
+                                            "AC Chair Car": item.pricing?.acChairCar || 1500
+                                        };
+                                        const price = seatingClass && seatingClass !== "All Class" && seatingClass !== "" 
+                                            ? classPriceMap[seatingClass] || 1500 
+                                            : null;
+                                        return (
+                                            <option key={index} value={item.name}>
+                                                {item.number} , {item.name} {price ? `- ₹${price.toLocaleString('en-IN')}` : ''}
+                                            </option>
+                                        );
+                                    }).filter(Boolean)}
                             </select>
                         </div>
+                        <div className="text-left">
+                            <h3 className="font-semibold text-gray-800 mb-2">Number of Tickets</h3>
+                            <input 
+                                type="number" 
+                                min="1" 
+                                value={numberOfTickets} 
+                                onChange={handleNumberOfTickets}
+                                className="w-full h-12 text-md font-medium border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"
+                            />
+                        </div>
                 </div>
+                {trainNumber && seatingClass && seatingClass !== "All Class" && seatingClass !== "" && numberOfTickets > 0 && (
+                    <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h3 className="font-semibold text-gray-800">Total Amount</h3>
+                                {(() => {
+                                    const selectedTrain = allTrains.find(t => t.name === trainNumber || t.number === trainNumber);
+                                    if (!selectedTrain) return null;
+                                    const classPriceMap = {
+                                        "Sleeper Class": selectedTrain.pricing?.sleeperClass || 500,
+                                        "Third AC": selectedTrain.pricing?.thirdAC || 1200,
+                                        "Second AC": selectedTrain.pricing?.secondAC || 2000,
+                                        "First AC": selectedTrain.pricing?.firstAC || 3500,
+                                        "Second Seating": selectedTrain.pricing?.secondSeating || 400,
+                                        "Vistadome AC": selectedTrain.pricing?.vistadomeAC || 2500,
+                                        "AC Chair Car": selectedTrain.pricing?.acChairCar || 1500
+                                    };
+                                    const pricePerTicket = classPriceMap[seatingClass] || 1500;
+                                    const total = pricePerTicket * numberOfTickets;
+                                    return (
+                                        <>
+                                            <p className="text-2xl font-bold text-green-600">₹{total.toLocaleString('en-IN')}</p>
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                ₹{pricePerTicket.toLocaleString('en-IN')} × {numberOfTickets} ticket{numberOfTickets > 1 ? 's' : ''}
+                                            </p>
+                                        </>
+                                    );
+                                })()}
+                            </div>
+                        </div>
+                    </div>
+                )}
+                </>
             )}
             
             {

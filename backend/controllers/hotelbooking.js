@@ -20,7 +20,7 @@ export async function handleHotelBookGetData(req,res){
 }
 
 export async function handleHotelBookPostData(req,res){
-    const {email,category,location,checkinDate,checkoutDate,room,price}=req.body;
+    const {email,category,location,checkinDate,checkoutDate,room,price,numberOfRooms,numberOfNights}=req.body;
  
     const data={
          email:email,
@@ -29,7 +29,9 @@ export async function handleHotelBookPostData(req,res){
          checkinDate:checkinDate,
          checkoutDate:checkoutDate,
          rooms:room,
-         price:price
+         numberOfRooms:numberOfRooms || 1,
+         numberOfNights:numberOfNights || 1,
+         price:price || 1500
     }
  
     try{

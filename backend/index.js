@@ -22,6 +22,7 @@ import { handleLogout } from "./controllers/logout.js";
 import { chatbot } from "./controllers/chatbot.js";
 import dotenv from 'dotenv';
 import { forgetPassword, forgetPasswordEmail } from "./controllers/password.js";
+import { createOrder, verifyPayment } from "./controllers/payments.js";
 
 const app= express();
 app.use(express.json());
@@ -130,6 +131,10 @@ app.delete("/hotelbooking/:id",handleHotelBookingDelete)
 app.get("/cabbooking",authenticateToken,handleCabBookGetData)
 app.post("/cabbooking",handleCabBookPostData)
 app.delete("/cabbooking/:id",handleCabBookDelete);
+
+//payment routes
+app.post("/create-order", createOrder);
+app.post("/verify-payment", verifyPayment);
 
 //api routes
 app.get("/api/cities",getCities);

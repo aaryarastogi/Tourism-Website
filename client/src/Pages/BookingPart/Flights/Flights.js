@@ -3,7 +3,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import axios from "axios";
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
-import backend_url from "../../../config"
+import backend_url, { razorkey_id } from "../../../config"
 import useUser from "../../../components/Flights/useUser"
 import useAirports from "../../../components/Flights/useAirports"
 import MultiCityForm from "../../../components/Flights/MultiCityForm";
@@ -27,7 +27,9 @@ const defaultForm = {
   fromCity: "", fromCity1: "", destination: "", destination1: "",
   flight: "", flight1: "",
   departureDate: "", returnDate: "",
-  departureDate1: "", returnDate1: ""
+  departureDate1: "", returnDate1: "",
+  numberOfTickets: 1,
+  flightPrice: 0
 };
 
 const Flights = () => {
@@ -36,18 +38,47 @@ const Flights = () => {
   const { email, logined } = useUser();
   const [form, setForm] = useState({ ...defaultForm });
   const [filteredFlights, setFilteredFlights] = useState([]);
+  const [allFlights, setAllFlights] = useState([]);
+
+  React.useEffect(() => {
+    const fetchFlights = async () => {
+      try {
+        const res = await axios.get(`${backend_url}/api/flights`);
+        setAllFlights(res.data.data || []);
+      } catch (e) {
+        console.error('Error fetching flights:', e);
+      }
+    };
+    fetchFlights();
+  }, []);
 
   React.useEffect(() => {
     const fromAirport = airports.find(a => a.name === form.fromCity);
     const destAirport = airports.find(a => a.name === form.destination);
     if (fromAirport && destAirport) {
-      const possible = fromAirport.flights.filter(f =>
-        destAirport.flights.some(df => df.id === f.id));
-      setFilteredFlights(possible);
+      const possible = fromAirport.flights.filter(f => {
+        const fId = f._id || f;
+        return destAirport.flights.some(df => {
+          const dfId = df._id || df;
+          return fId.toString() === dfId.toString();
+        });
+      });
+      const flightsWithData = possible.map(f => {
+        if (typeof f === 'object' && f.price !== undefined) {
+          return f;
+        }
+        const flightId = typeof f === 'object' ? (f._id || f) : f;
+        const fullFlight = allFlights.find(af => 
+          af._id?.toString() === flightId.toString() || 
+          af.flightNumber === (typeof f === 'object' ? f.flightNumber : null)
+        );
+        return fullFlight || (typeof f === 'object' ? f : null);
+      }).filter(Boolean);
+      setFilteredFlights(flightsWithData);
     } else {
       setFilteredFlights([]);
     }
-  }, [form.fromCity, form.destination, airports]);
+  }, [form.fromCity, form.destination, airports, allFlights]);
 
   const handleCategory = useCallback(
     (value) => {
@@ -65,7 +96,8 @@ const Flights = () => {
   const validate = () => {
     const {
       category, fromCity, destination, departureDate, returnDate, flight,
-      fromCity1, destination1, departureDate1, returnDate1 , flight1 
+      fromCity1, destination1, departureDate1, returnDate1 , flight1,
+      numberOfTickets
     } = form;
     if (
       (["Round Trip", "Multi City"].includes(category) &&
@@ -74,6 +106,9 @@ const Flights = () => {
         (!fromCity || !destination || !departureDate || !flight))
     ) {
       alert("Kindly fill all required details!!!"); return false;
+    }
+    if (!numberOfTickets || numberOfTickets < 1) {
+      alert("Please enter a valid number of tickets (at least 1)!"); return false;
     }
     if (fromCity === destination) {
       alert("Current city and destination can never be same"); return false;
@@ -93,20 +128,81 @@ const Flights = () => {
   const bookFlight = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+
     try {
-      const payload = { email, ...form };
-      const res = await axios.post(`${backend_url}/flightbooking`, payload);
-      if (res.data === "fail") {
-        alert("Flight booking failed. Please check the details.");
+      const selectedFlight = filteredFlights.find(f => {
+        const flight = typeof f === 'object' ? f : null;
+        return flight && flight.airline === form.flight;
+      }) || allFlights.find(f => f.airline === form.flight);
+      const pricePerTicket = selectedFlight?.price || 5000;
+      let amount;
+      if (form.category === "Round Trip") {
+        amount = (pricePerTicket * 2) * (form.numberOfTickets || 1);
+      } else if (form.category === "Multi City") {
+        const selectedFlight1 = filteredFlights.find(f => {
+          const flight = typeof f === 'object' ? f : null;
+          return flight && flight.airline === form.flight;
+        }) || allFlights.find(f => f.airline === form.flight);
+        const selectedFlight2 = filteredFlights.find(f => {
+          const flight = typeof f === 'object' ? f : null;
+          return flight && flight.airline === form.flight1;
+        }) || allFlights.find(f => f.airline === form.flight1);
+        const price1 = selectedFlight1?.price || 5000;
+        const price2 = selectedFlight2?.price || 5000;
+        amount = (price1 + price2) * (form.numberOfTickets || 1);
       } else {
-        alert("Successfully, your flight is booked...");
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-        setForm({ ...defaultForm });
-      }
-    } catch (e) {
-      alert("An error occurred while booking the flight. Please try again.");
+        amount = pricePerTicket * (form.numberOfTickets || 1);
+      } 
+      const order = await axios.post(`${backend_url}/create-order`, {
+        amount,
+        bookingType: "flight"
+      });
+
+      const options = {
+        key: razorkey_id,
+        amount: order.data.amount,
+        currency: "INR",
+        name: "Tourism Flight Booking",
+        description: "Flight Ticket Payment",
+        order_id: order.data.id,
+
+        handler: async function (response) {
+          const verify = await axios.post(`${backend_url}/verify-payment`, response);
+
+          if (verify.data.success) {
+            const payload = { 
+              email, 
+              ...form, 
+              payment_id: response.razorpay_payment_id,
+              price: amount,
+              numberOfTickets: form.numberOfTickets || 1
+            };
+            const res = await axios.post(`${backend_url}/flightbooking`, payload);
+
+            if (res.data === "fail") {
+              alert("Flight booking failed. Please try again.");
+            } else {
+              alert("🎉 Payment successful & Flight booked!");
+              window.location.reload();
+            }
+          } else {
+            alert("❌ Payment verification failed");
+          }
+        },
+
+        prefill: {
+          name: "User",
+          email: email,
+        },
+        theme: { color: "#3399cc" }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while initiating the payment");
     }
   };
 
@@ -130,14 +226,13 @@ const Flights = () => {
           </StylingRadio>
         </div>
 
-        {/* Form Content */}
         <div className="p-6 md:p-8">
           {form.category === "Multi City" ? (
-            <MultiCityForm airports={airports} handleField={handleField} form={form} filteredFlights = {filteredFlights}/>
+            <MultiCityForm airports={airports} handleField={handleField} form={form} filteredFlights={filteredFlights} allFlights={allFlights}/>
           ) : form.category === "Round Trip" ? (
-            <RoundTripForm airports={airports} handleField={handleField} form={form} filteredFlights = {filteredFlights}/>
+            <RoundTripForm airports={airports} handleField={handleField} form={form} filteredFlights={filteredFlights} allFlights={allFlights}/>
           ) : (
-            <OneWayForm airports={airports} handleField={handleField} form={form} filteredFlights = {filteredFlights}/>
+            <OneWayForm airports={airports} handleField={handleField} form={form} filteredFlights={filteredFlights} allFlights={allFlights}/>
           )}
           
           <div className="flex justify-end mt-8">

@@ -20,7 +20,7 @@ export async function handleCabBookGetData(req,res){
 }
 
 export async function handleCabBookPostData(req,res){
-    const {email,category,fromCity,destination,departureDate,returnDate,pickupTime}=req.body;
+    const {email,category,fromCity,destination,departureDate,returnDate,pickupTime,numberOfBookings,distance,price}=req.body;
     const data={
         email:email,
         category:category,
@@ -28,7 +28,10 @@ export async function handleCabBookPostData(req,res){
         destination:destination,
         departureDate:departureDate,
         returnDate:returnDate,
-        pickupTime:pickupTime
+        pickupTime:pickupTime,
+        numberOfBookings:numberOfBookings || 1,
+        distance:distance || 0,
+        price:price || 1500
     }
 
     try{

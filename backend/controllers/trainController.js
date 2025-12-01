@@ -2,12 +2,12 @@ import Station from "../Schema/Trains/StationSchema.js";
 import Train from "../Schema/Trains/TrainSchema.js";
 
 export async function createTrain(req, res){
-    const { name, number , stations} = req.body;
+    const { name, number , stations, pricing} = req.body;
     try {
       const station = await Station.findById(stations);
         if(!station) return res.status(404).json({success: false , message: "Station not found..."})
       
-      const train = new Train({ name, number , stations});
+      const train = new Train({ name, number , stations, pricing: pricing || {}});
       const newTrain = await train.save();
         console.log(station);
       station.trains.push(newTrain._id);

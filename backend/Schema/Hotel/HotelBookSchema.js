@@ -25,8 +25,17 @@ const hotelBookSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    numberOfRooms:{
+        type:Number,
+        required:true,
+        default:1
+    },
+    numberOfNights:{
+        type:Number,
+        required:true
+    },
     price:{
-        type:String,
+        type:Number,
         required:true
     }
 })
