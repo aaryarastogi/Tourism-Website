@@ -44,6 +44,7 @@ const MyAccount=()=>{
     const[zoom,setZoom]=useState(1);
     const[croppedAreaPixels,setCroppedAreaPixels]=useState(null);
     const[imageUrl,setImageUrl]=useState('');
+    const[isSavingImage,setIsSavingImage]=useState(false);
 
     useEffect(()=>{
         const storedToken=localStorage.getItem('token');
@@ -219,42 +220,80 @@ const MyAccount=()=>{
         });
 
     const getCroppedImg = async (imageSrc, pixelCrop) => {
-        const image = await createImage(imageSrc);
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        try {
+            const image = await createImage(imageSrc);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
 
-        const maxSize = Math.max(image.width, image.height);
-        const safeArea = 2 * ((maxSize / 2) * Math.sqrt(2));
+            if (!ctx) {
+                throw new Error('Could not get canvas context');
+            }
 
-        canvas.width = safeArea;
-        canvas.height = safeArea;
+            const maxSize = Math.max(image.width, image.height);
+            const safeArea = 2 * ((maxSize / 2) * Math.sqrt(2));
 
-        ctx.drawImage(
-            image,
-            safeArea / 2 - image.width * 0.5,
-            safeArea / 2 - image.height * 0.5
-        );
-        const data = ctx.getImageData(0, 0, safeArea, safeArea);
+            canvas.width = safeArea;
+            canvas.height = safeArea;
 
-        canvas.width = pixelCrop.width;
-        canvas.height = pixelCrop.height;
+            ctx.drawImage(
+                image,
+                safeArea / 2 - image.width * 0.5,
+                safeArea / 2 - image.height * 0.5
+            );
+            const data = ctx.getImageData(0, 0, safeArea, safeArea);
 
-        ctx.putImageData(
-            data,
-            Math.round(0 - safeArea / 2 + image.width * 0.5 - pixelCrop.x),
-            Math.round(0 - safeArea / 2 + image.height * 0.5 - pixelCrop.y)
-        );
+            // Limit maximum dimensions to 800x800 to reduce file size
+            const MAX_DIMENSION = 800;
+            let outputWidth = pixelCrop.width;
+            let outputHeight = pixelCrop.height;
+            let scale = 1;
 
-        return new Promise((resolve) => {
-            canvas.toBlob((blob) => {
-                // Convert blob to base64 for database storage
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    resolve(reader.result); // This will be a base64 string
-                };
-                reader.readAsDataURL(blob);
-            }, 'image/jpeg', 0.9); // 0.9 quality to reduce size
-        });
+            if (outputWidth > MAX_DIMENSION || outputHeight > MAX_DIMENSION) {
+                scale = MAX_DIMENSION / Math.max(outputWidth, outputHeight);
+                outputWidth = Math.round(outputWidth * scale);
+                outputHeight = Math.round(outputHeight * scale);
+            }
+
+            // Create a temporary canvas for the full-size crop
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = pixelCrop.width;
+            tempCanvas.height = pixelCrop.height;
+            
+            tempCtx.putImageData(
+                data,
+                Math.round(0 - safeArea / 2 + image.width * 0.5 - pixelCrop.x),
+                Math.round(0 - safeArea / 2 + image.height * 0.5 - pixelCrop.y)
+            );
+
+            // Set final canvas size and draw scaled version
+            canvas.width = outputWidth;
+            canvas.height = outputHeight;
+            ctx.drawImage(tempCanvas, 0, 0, pixelCrop.width, pixelCrop.height, 0, 0, outputWidth, outputHeight);
+
+            return new Promise((resolve, reject) => {
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        reject(new Error('Failed to create blob from canvas'));
+                        return;
+                    }
+                    // Convert blob to base64 for database storage
+                    const reader = new FileReader();
+                    reader.onerror = () => reject(new Error('Failed to read blob as data URL'));
+                    reader.onloadend = () => {
+                        if (reader.result) {
+                            resolve(reader.result); // This will be a base64 string
+                        } else {
+                            reject(new Error('Failed to convert blob to base64'));
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                }, 'image/jpeg', 0.75); // Quality 0.75 for good balance between quality and size
+            });
+        } catch (error) {
+            console.error('Error in getCroppedImg:', error);
+            throw error;
+        }
     };
 
     const handleImageUpload = (e) => {
@@ -265,6 +304,7 @@ const MyAccount=()=>{
                 setImageSrc(reader.result);
                 setShowImageEditor(true);
                 setImageUrl('');
+                setCroppedAreaPixels(null); // Reset crop area when new image loads
             };
             reader.readAsDataURL(file);
         }
@@ -274,12 +314,40 @@ const MyAccount=()=>{
         if (imageUrl) {
             setImageSrc(imageUrl);
             setShowImageEditor(true);
+            setCroppedAreaPixels(null); // Reset crop area when new image loads
         }
     };
 
     const handleCropComplete = async () => {
+        // Validate that we have the necessary data
+        if (!imageSrc) {
+            console.error('No image source available');
+            alert('Please select an image first');
+            return;
+        }
+
+        if (!croppedAreaPixels) {
+            console.error('Crop area not initialized. Please adjust the image first.');
+            alert('Please adjust the image position or zoom before saving.');
+            return;
+        }
+
+        if (!token) {
+            console.error('No authentication token available');
+            alert('Please log in again to save your profile image.');
+            return;
+        }
+
+        setIsSavingImage(true);
         try {
+            console.log('Starting image crop process...');
             const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels);
+            
+            if (!croppedImage) {
+                throw new Error('Failed to generate cropped image');
+            }
+
+            console.log('Cropped image generated, size:', croppedImage.length, 'characters');
             
             // Save to backend as base64
             const response = await axios.put(`${backend_url}/user`, {
@@ -287,10 +355,11 @@ const MyAccount=()=>{
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
             
-            if (response.data.success) {
+            if (response.data && response.data.success) {
                 console.log('Profile image updated successfully');
                 // Update local state only after successful save
                 setProfileImage(croppedImage);
@@ -299,11 +368,35 @@ const MyAccount=()=>{
                 setImageUrl('');
                 setCrop({ x: 0, y: 0 });
                 setZoom(1);
+                setCroppedAreaPixels(null);
             } else {
-                console.error('Failed to save profile image');
+                console.error('Failed to save profile image:', response.data);
+                const errorMessage = response.data?.message || 'Failed to save profile image. Please try again.';
+                alert(errorMessage);
             }
         } catch (error) {
-            console.error('Error cropping image:', error);
+            console.error('Error cropping/saving image:', error);
+            
+            // Provide more specific error messages
+            let errorMessage = 'An error occurred while saving the image. Please try again.';
+            
+            if (error.response) {
+                // Server responded with error status
+                console.error('Server error:', error.response.status, error.response.data);
+                errorMessage = error.response.data?.message || `Server error: ${error.response.status}. Please try again.`;
+            } else if (error.request) {
+                // Request was made but no response received
+                console.error('No response from server:', error.request);
+                errorMessage = 'Could not connect to server. Please check your internet connection and try again.';
+            } else if (error.message) {
+                // Error in image processing
+                console.error('Image processing error:', error.message);
+                errorMessage = `Error processing image: ${error.message}. Please try a different image.`;
+            }
+            
+            alert(errorMessage);
+        } finally {
+            setIsSavingImage(false);
         }
     };
 
@@ -313,6 +406,8 @@ const MyAccount=()=>{
         setImageUrl('');
         setCrop({ x: 0, y: 0 });
         setZoom(1);
+        setCroppedAreaPixels(null);
+        setIsSavingImage(false);
     };
 
     return(
@@ -665,14 +760,29 @@ const MyAccount=()=>{
                                 <div className="flex items-center gap-3 pt-4">
                                     <button
                                         onClick={handleCropComplete}
-                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                                        disabled={isSavingImage || !croppedAreaPixels}
+                                        className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                                            isSavingImage || !croppedAreaPixels ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                                        }`}
                                     >
-                                        <SaveIcon className="text-lg"/>
-                                        <span>Save & Apply</span>
+                                        {isSavingImage ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                <span>Saving...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <SaveIcon className="text-lg"/>
+                                                <span>Save & Apply</span>
+                                            </>
+                                        )}
                                     </button>
                                     <button
                                         onClick={handleCloseImageEditor}
-                                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                                        disabled={isSavingImage}
+                                        className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                                            isSavingImage ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''
+                                        }`}
                                     >
                                         <CancelIcon className="text-lg"/>
                                         <span>Cancel</span>

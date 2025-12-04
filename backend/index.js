@@ -25,7 +25,8 @@ import { forgetPassword, forgetPasswordEmail } from "./controllers/password.js";
 import { createOrder, verifyPayment } from "./controllers/payments.js";
 
 const app= express();
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Increased limit for base64 images
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 dotenv.config();
 

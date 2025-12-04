@@ -48,42 +48,45 @@ const SignIn=()=>{
     let name="";
     let login=false;
 
-    const submit=async(e)=>{
+    const submit = async (e) => {
         e.preventDefault();
-        try{
-            await axios.post(`${backend_url}/signin`,{
-                username,email,password,phoneNumber
-            })
-            .then(res=>{
-                if(res.data=="notexist"){
-                    alert("User is not found")
-                }
-                else if(res.data){
-                    console.log("login....",res.data)
-                    name=res.data.username
-                    if(email && password){
-                        alert("Succesfully login...")
-                    }
-                    else{
-                        alert("Kindly fill all details!")
-                    }
-                    login=true;
-                    localStorage.setItem("token",res.data.tokens[0].token);
-                    localStorage.setItem("loginState", login);
-                    navigate("/", { state: { id: name , login:login } });
-                    window.location.reload();
-                }
-            })
-            .catch(e=>{
-                alert("wrong details")
-                console.log(e);
-            })
-        }
-        catch(e){
-            console.log(e);
-        }
-    }
 
+        if (!email || !password) {
+            alert("Enter all the details!");
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${backend_url}/signin`, {
+            email,
+            password,
+            });
+
+            if (res.data === "notexist") {
+            alert("User not found");
+            return;
+            }
+
+            if (res.data === "pwdnotmatch") {
+            alert("Wrong password");
+            return;
+            }
+
+            if (res.data.message === "success") {
+            alert("Login successful");
+
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("loginState", true);
+
+            navigate("/", { state: { id: res.data.user.username, login: true } });
+            window.location.reload();
+            }
+        } catch (err) {
+            alert("Something went wrong");
+            console.log(err);
+        }
+    };
+    
     console.log(localStorage.getItem('token'));
 
     const responseSuccessGoogle = async (credentialResponse) => {
@@ -146,8 +149,8 @@ const SignIn=()=>{
                     </div>
                     </GoogleOAuthProvider>
                     <h1 className="text-md text-gray-500">or use your email account</h1>
-                    <EmailStyling label="Email" variant="outlined" value={email} onChange={e=> setEmail(e.target.value)} />
-                    <EmailStyling  label="Password"  type="password" variant="outlined" value={password} onChange={e=> setPassword(e.target.value)}/>
+                    <EmailStyling label="Email" variant="outlined" value={email} onChange={e=> setEmail(e.target.value)} required={true}/>
+                    <EmailStyling  label="Password"  type="password" variant="outlined" value={password} onChange={e=> setPassword(e.target.value)} required={true}/>
                     <h1 className="mx-auto text-gray-600 cursor-pointer" onClick={()=> navigate('/reset-password')}>Forgot your password</h1>
                     <div className="uppercase p-2 font-semibold text-white text-xl cursor-pointer bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full px-8 w-36 mx-auto" onClick={submit}>Sign in</div>
                 </div>

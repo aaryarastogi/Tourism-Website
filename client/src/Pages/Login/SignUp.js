@@ -43,31 +43,47 @@ const Login=()=>{
     const[password,setPassword]=useState('');
     const[phoneNumber,setPhoneNumber]=useState();
 
-    const submitSignup=async(e)=>{
+    const submitSignup = async (e) => {
         e.preventDefault();
-        try{
-            await axios.post(`${backend_url}/signup`,{
-                username,email,password,phoneNumber
-            })
-            .then(res=>{
-                if(res.data=="exist"){
-                    alert("User already exist")
-                }
-                else if(res.data=="notexist"){
-                    history("/registered",{state:{id:email}})
-                    console.log(res.data)
-                }
+        if (!username || !email || !password || !phoneNumber) {
+            alert("All fields are required!");
+            return;
+        }
+        if (!email.includes("@")) {
+            alert("Invalid email!");
+            return;
+        }
+        if (password.length < 6) {
+            alert("Password must be atleast 6 characters!");
+            return;
+        }
+        if (phoneNumber.length !== 10) {
+            alert("Phone number must be 10 digits");
+            return;
+        }
+        try {
+        const res = await axios.post(`${backend_url}/signup`, {
+            username,
+            email,
+            password,
+            phoneNumber,
+        });
+        if (res.data === "exist") {
+            alert("User already exists!");
+        } 
+        else if (res.data === "success") {
+            alert("Registration successful!");
+            history("/registered", { state: { id: email } });
+        } 
+        else {
+            alert("Signup failed. Try again.");
+        }
+        } catch (err) {
+        console.log(err);
+        alert("Something went wrong");
+        }
+    };
 
-            })
-            .catch(e=>{
-                alert("wrong details")
-                console.log(e.message);
-            })
-        }
-        catch(e){
-            console.log(e);
-        }
-    }
 
     let login = false;
 

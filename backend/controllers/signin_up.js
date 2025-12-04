@@ -4,57 +4,71 @@ import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client("297704508492-ci2ff1dipf6i9sliop0m02k2pqtcdalo.apps.googleusercontent.com");
 
-export async function handleSignIn(req,res){
-    const {username,email,password,phoneNumber}=req.body;
-    try{
-        const check=await collection.findOne({email:email}) 
-        if(check){
-            const isPwdMatch = bcrypt.compare(password,check.password)
-            if(isPwdMatch){ 
-              req.session.user=check
-              req.session.loggedIn=true
+export async function handleSignIn(req, res) {
+  const { email, password } = req.body;
 
-              const token= await check.generateAuthToken();
-              res.send(req.session.user);
-            }
-            else{
-              console.log("pwd not match")
-            }
-        }
-        else{
-          res.json("notexist")
-        }
+  try {
+    const user = await collection.findOne({ email });
+    if (!user) {
+      return res.send("notexist");
     }
-    catch(e){
-        console.log("tokenerror",e);
-        res.status(500).json({ error: "Internal Server Error" });
+
+    const isPwdMatch = await bcrypt.compare(password, user.password);
+    if (!isPwdMatch) {
+      return res.send("pwdnotmatch");
     }
+
+    const token = await user.generateAuthToken();  
+    res.json({
+      message: "success",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+      token: token
+    });
+
+  } catch (error) {
+    console.log("Login Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 }
 
-export async function handleSignUp(req,res){
-    console.log(req.body)
-    const { username,email , password ,phoneNumber}=req.body
-    try{
-        const hashedPassword=await bcrypt.hash(password,10);
-        const data={
-            username:username,
-            email:email,
-            password:hashedPassword,
-            phoneNumber:phoneNumber
-        }
-        const check=await collection.findOne({email:email})
+export async function handleSignUp(req, res) {
+  try {
+    const { username, email, password, phoneNumber } = req.body;
+    if (!username || !email || !password || !phoneNumber) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+    if (!email.includes("@")) {
+      return res.status(400).json({ error: "Invalid email" });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password too short" });
+    }
+    if (phoneNumber.length !== 10) {
+      return res.status(400).json({ error: "Phone number must be 10 digits" });
+    }
+    const existingUser = await collection.findOne({ email });
 
-        if(check){
-            res.json("exist")
-        }
-        else{
-            res.json("notexist")
-            await collection.insertMany([data])
-        }
+    if (existingUser) {
+      return res.json("exist");
     }
-    catch(e){
-        console.log(e);
-    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new collection({
+      username,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+    });
+    await newUser.save();
+    return res.json("success");
+
+  } catch (error) {
+    console.log("Signup Error:", error);
+    return res.status(500).json({ error: "Server error" });
+  }
 }
 
 export async function googleAuthenticateUser(req, res) {
