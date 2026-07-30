@@ -18,12 +18,29 @@ const StylingButton=styled(Button)(({ theme }) => ({
 
 const Hotels=()=>{
     const { isDark } = useTheme();
-    const [checkinDate,setCheckinDate] = useState(new Date())
+    const todayDateString = React.useMemo(() => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }, []);
+
+    const tomorrowDateString = React.useMemo(() => {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const yyyy = tomorrow.getFullYear();
+        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const dd = String(tomorrow.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }, []);
+
+    const [checkinDate,setCheckinDate] = useState(todayDateString)
     const[category,setCategory]=useState('rooms')
     const[email,setEmail]=useState('');
     const[logined,setLogined]=useState(false);
     const[token,setToken]=useState('');
-    const [checkoutDate,setCheckoutDate] = useState(new Date())
+    const [checkoutDate,setCheckoutDate] = useState(tomorrowDateString)
     const [location,setLocation]=useState('From');
     const[hotel,setHotel]=useState('');
     const[price,setPrice]=useState('');
@@ -61,9 +78,20 @@ const Hotels=()=>{
             e.preventDefault();
 
             try {
+                const getMidnightDate = (dateVal) => {
+                    if (!dateVal) return null;
+                    const d = new Date(dateVal);
+                    if (isNaN(d.getTime())) return null;
+                    d.setHours(0, 0, 0, 0);
+                    return d;
+                };
+
                 const currDate = new Date();
-                const checkin = new Date(checkinDate);
-                const checkout = new Date(checkoutDate);
+                currDate.setHours(0, 0, 0, 0);
+
+                const checkin = getMidnightDate(checkinDate);
+                const checkout = getMidnightDate(checkoutDate);
+
                 if (!location || !checkinDate || !checkoutDate || !room || !hotel) {
                     alert("Kindly fill all details!!!");
                     return;
@@ -223,7 +251,7 @@ const Hotels=()=>{
       }, [location, cities, allHotels]);
 
     return(
-        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
+        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
             <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
                 <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 md:px-8 py-6">
                     <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">Hotel Booking 🏨</h1>
@@ -307,12 +335,12 @@ const Hotels=()=>{
                 </div>
                 <div className="text-left">
                     <h3 className="font-semibold text-gray-800 mb-2">Check In</h3>
-                    <input type="date" onChange={(e)=> setCheckinDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
+                    <input type="date" value={checkinDate} onChange={(e)=> setCheckinDate(e.target.value)} min={todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                 </div>
 
                 <div className="text-left">
                     <h3 className="font-semibold text-gray-800 mb-2">Check Out</h3>
-                    <input type="date" onChange={(e)=> setCheckoutDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
+                    <input type="date" value={checkoutDate} onChange={(e)=> setCheckoutDate(e.target.value)} min={checkinDate || todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                 </div>
                 <div className="text-left">
                     <h3 className="font-semibold text-gray-800 mb-2">Room Type</h3>

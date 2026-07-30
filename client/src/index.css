@@ -30,3 +30,53 @@ code {
 *::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+/* Dark Mode input and label overrides */
+.dark h3.text-gray-800 {
+  color: #e2e8f0 !important; /* text-gray-200 */
+}
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="number"],
+.dark select {
+  background-color: #1f2937 !important; /* bg-gray-800 */
+  color: #ffffff !important; /* text-white */
+  border-color: rgba(99, 102, 241, 0.4) !important; /* border-indigo-500/40 */
+  border-radius: 0.5rem !important; /* rounded-lg */
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  transition: all 0.2s ease-in-out !important;
+}
+.dark input[type="date"]:hover,
+.dark input[type="time"]:hover,
+.dark input[type="number"]:hover,
+.dark select:hover {
+  border-color: rgba(129, 140, 248, 0.7) !important; /* hover:border-indigo-400 */
+}
+.dark input[type="date"]:focus,
+.dark input[type="time"]:focus,
+.dark input[type="number"]:focus,
+.dark select:focus {
+  border-color: #6366f1 !important; /* focus:border-indigo-500 */
+  outline: 2px solid transparent !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+}
+.dark select option {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+/* Dark Mode standard TextField overrides for search */
+.dark-search .MuiInputLabel-root {
+  color: #a1a1aa !important; /* text-gray-400 */
+}
+.dark-search .MuiInput-underline:before {
+  border-bottom-color: rgba(255, 255, 255, 0.4) !important;
+}
+.dark-search .MuiInput-underline:after {
+  border-bottom-color: #6366f1 !important; /* indigo-500 */
+}
+.dark-search .MuiInputBase-input {
+  color: #ffffff !important;
+}

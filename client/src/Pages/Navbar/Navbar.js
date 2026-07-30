@@ -154,7 +154,10 @@ const Navbar=(props)=>{
                     <span className="text-headingcolor bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-extrabold"><Link to='/'>myjourney.com</Link></span>
                 </h1>
             </div>
-            <Drawer anchor="left" open={isDrawerOpen} onClose={()=>setIsDrawerOpen(false)} className="">
+            <Drawer anchor="left" open={isDrawerOpen} onClose={()=>setIsDrawerOpen(false)} className=""
+                    PaperProps={{
+                        sx: { backgroundColor: isDark ? '#1f2937' : '#ffffff' }
+                    }}>
                 <Box p={2} width='250px' textAlign='left' role='presentation' sx={{ backgroundColor: isDark ? '#1f2937' : '#ffffff' }}>
                 <motion.h1
                 className={`text-center font-semibold text-xl sm:text-2xl ${isDark ? 'text-gray-200' : 'text-headingcolor'}`}

@@ -66,6 +66,13 @@ const calculateDistance = (fromCity, toCity) => {
 
 const Cabs = () => {
     const { isDark } = useTheme();
+    const todayDateString = React.useMemo(() => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }, []);
     const [category, setCategory] = useState('Out Station One Way');
     const [OutStationOneway, setOutstationOneway] = useState(true);
     const [OutstationRoundTrip, setOutstationRoundTrip] = useState(false);
@@ -179,23 +186,46 @@ const Cabs = () => {
 
     const validate = () => {
         try {
-            const departureDateObj = departureDate ? new Date(departureDate) : null;
-            const returnDateObj = returnDate ? new Date(returnDate) : null;
-            const currDateObj = new Date();
-            let pickupDateTime = null;
-            let dropDateTime = null;
-            if (pickupTime) {
-                const baseDate = pickupDate instanceof Date ? pickupDate : (departureDate ? new Date(departureDate) : new Date());
-                pickupDateTime = new Date(baseDate);
-                const [ph, pm] = pickupTime.split(":");
-                pickupDateTime.setHours(Number(ph), Number(pm), 0, 0);
-            }
-            if (dropTime) {
-                const baseDate = pickupDate instanceof Date ? pickupDate : (returnDate ? new Date(returnDate) : new Date());
-                dropDateTime = new Date(baseDate);
-                const [dh, dm] = dropTime.split(":");
-                dropDateTime.setHours(Number(dh), Number(dm), 0, 0);
-            }
+            const parseLocalDateTimeField = (dateVal, timeStr) => {
+                let year, month, day;
+                if (!dateVal) {
+                    const today = new Date();
+                    year = today.getFullYear();
+                    month = today.getMonth();
+                    day = today.getDate();
+                } else if (dateVal instanceof Date) {
+                    year = dateVal.getFullYear();
+                    month = dateVal.getMonth();
+                    day = dateVal.getDate();
+                } else {
+                    const parts = dateVal.split("-");
+                    year = parseInt(parts[0], 10);
+                    month = parseInt(parts[1], 10) - 1;
+                    day = parseInt(parts[2], 10);
+                }
+
+                let hours = 0;
+                let minutes = 0;
+                if (timeStr) {
+                    const parts = timeStr.split(":");
+                    hours = parseInt(parts[0], 10);
+                    minutes = parseInt(parts[1], 10);
+                }
+
+                return new Date(year, month, day, hours, minutes, 0, 0);
+            };
+
+            const departureDateObj = departureDate ? parseLocalDateTimeField(departureDate) : null;
+            const returnDateObj = returnDate ? parseLocalDateTimeField(returnDate) : null;
+
+            const currDateObj = parseLocalDateTimeField(null);
+            const currDateTimeObj = new Date();
+
+            const basePickupDate = HourlyRentals ? pickupDate : departureDate;
+            const baseDropDate = HourlyRentals ? pickupDate : returnDate;
+
+            const pickupDateTime = pickupTime ? parseLocalDateTimeField(basePickupDate, pickupTime) : null;
+            const dropDateTime = dropTime ? parseLocalDateTimeField(baseDropDate, dropTime) : null;
 
             if (returnDateObj && departureDateObj && returnDateObj < departureDateObj) {
                 alert("Return date cannot be earlier than departure date.");
@@ -213,11 +243,11 @@ const Cabs = () => {
                 alert("Kindly fill correct details! Return date cannot be in the past.");
                 return false;
             }
-            if (pickupDateTime && pickupDateTime < currDateObj) {
+            if (pickupDateTime && pickupDateTime < currDateTimeObj) {
                 alert("Pickup time cannot be in the past.");
                 return false;
             }
-            if (dropDateTime && dropDateTime < currDateObj) {
+            if (dropDateTime && dropDateTime < currDateTimeObj) {
                 alert("Drop time cannot be in the past.");
                 return false;
             }
@@ -340,7 +370,7 @@ const Cabs = () => {
     };
 
     return (
-        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
+        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
             <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
                 <div className="bg-gradient-to-r from-orange-600 to-red-600 px-6 md:px-8 py-6">
                     <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">Online Cab Booking 🚗</h1>
@@ -412,7 +442,7 @@ const Cabs = () => {
 
                                 <div className="text-left">
                                     <h3 className="font-semibold text-gray-800 mb-2">Departure</h3>
-                                    <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors" />
+                                    <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} min={todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors" />
                                 </div>
 
                                 <div className="text-left">
@@ -460,12 +490,12 @@ const Cabs = () => {
 
                                     <div className="text-left">
                                         <h3 className="font-semibold text-gray-800 mb-2">Departure</h3>
-                                        <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
+                                        <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} min={todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                                     </div>
 
                                     <div className="text-left">
                                         <h3 className="font-semibold text-gray-800 mb-2">Return</h3>
-                                        <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
+                                        <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} min={departureDate || todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                                     </div>
 
                                     <div className="text-left">
@@ -518,7 +548,7 @@ const Cabs = () => {
 
                                     <div className="text-left">
                                         <h3 className="font-semibold text-gray-800 mb-2">Departure</h3>
-                                        <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
+                                        <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} min={todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                                     </div>
 
                                     <div className="text-left">
@@ -554,7 +584,7 @@ const Cabs = () => {
 
                                     <div className="text-left">
                                         <h3 className="font-semibold text-gray-800 mb-2">Pick Up Date</h3>
-                                        <input type="date" value={pickupDate instanceof Date ? pickupDate.toISOString().slice(0, 10) : pickupDate} onChange={(e) => setPickupDate(e.target.value)} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
+                                        <input type="date" value={pickupDate instanceof Date ? pickupDate.toISOString().slice(0, 10) : pickupDate} onChange={(e) => setPickupDate(e.target.value)} min={todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                                     </div>
 
                                     <div className="text-left">

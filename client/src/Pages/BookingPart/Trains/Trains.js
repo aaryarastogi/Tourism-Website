@@ -22,6 +22,13 @@ const StylingButton=styled(Button)(({ theme }) => ({
 
 const Trains=()=>{
     const { isDark } = useTheme();
+    const todayDateString = React.useMemo(() => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }, []);
     const [category,setCategory]=useState('Book Train');
     const[bookTrain,setBookTrain]=useState(true);
     const [checkPNR , setCheckPNR]=useState(false);
@@ -78,9 +85,9 @@ const Trains=()=>{
     setNumberOfTickets(parseInt(e.target.value) || 1)
     }
 
-    const [travelDate,setTravelDate] = useState(new Date())
+    const [travelDate,setTravelDate] = useState(todayDateString)
     const handleTravelDate = (e) => {
-        setTravelDate(new Date(e.target.value));
+        setTravelDate(e.target.value);
     }
 
     const[email,setEmail]=useState('');
@@ -116,8 +123,19 @@ const handlingTrainBooking = async (e) => {
     e.preventDefault();
 
     try {
+        const getMidnightDate = (dateVal) => {
+            if (!dateVal) return null;
+            const d = new Date(dateVal);
+            if (isNaN(d.getTime())) return null;
+            d.setHours(0, 0, 0, 0);
+            return d;
+        };
+
+        const travelDateObj = getMidnightDate(travelDate);
         const currDateObj = new Date();
-        if (travelDate.setHours(0, 0, 0, 0) < currDateObj.setHours(0, 0, 0, 0)) {
+        currDateObj.setHours(0, 0, 0, 0);
+
+        if (travelDateObj && travelDateObj < currDateObj) {
             alert("Travel date cannot be earlier than today.");
             return;
         }
@@ -288,7 +306,7 @@ const handlingTrainBooking = async (e) => {
     }
 
     return(
-        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
+        <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
             <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
                 <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 md:px-8 py-6">
                     <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">Train Booking 🚂</h1>
@@ -353,7 +371,7 @@ const handlingTrainBooking = async (e) => {
                         </div>
                         <div className="text-left">
                             <h3 className="font-semibold text-gray-800 mb-2">Travel Date</h3>
-                            <input type="date" onChange={handleTravelDate} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
+                            <input type="date" value={travelDate} onChange={handleTravelDate} min={todayDateString} className="w-full h-12 text-md font-medium capitalize cursor-pointer border-2 border-gray-200 rounded-lg px-4 hover:border-indigo-400 focus:border-indigo-600 focus:outline-none transition-colors"></input>
                         </div>
                         <div className="text-left">
                             <h3 className="font-semibold text-gray-800 mb-2">Class</h3>

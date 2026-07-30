@@ -113,13 +113,73 @@ const Flights = () => {
     if (fromCity === destination) {
       alert("Current city and destination can never be same"); return false;
     }
-    if (category !== "One Way") {
-      const dep = new Date(departureDate);
-      const ret = new Date(returnDate);
-      if (ret < dep) { alert("Return date cannot be earlier than departure date."); return false; }
-      const now = new Date();
-      if (dep < now || ret < now) {
-        alert("Departure/return dates cannot be in the past."); return false;
+    // Date validation
+    const getMidnightDate = (dateStr) => {
+      if (!dateStr) return null;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return null;
+      d.setHours(0, 0, 0, 0);
+      return d;
+    };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const dep = getMidnightDate(departureDate);
+    if (dep && dep < today) {
+      alert("Departure date cannot be in the past.");
+      return false;
+    }
+
+    if (category === "Round Trip") {
+      const ret = getMidnightDate(returnDate);
+      if (ret) {
+        if (ret < dep) { 
+          alert("Return date cannot be earlier than departure date."); 
+          return false; 
+        }
+        if (ret < today) {
+          alert("Return date cannot be in the past.");
+          return false;
+        }
+      }
+    }
+
+    if (category === "Multi City") {
+      const ret = getMidnightDate(returnDate);
+      if (ret) {
+        if (ret < dep) {
+          alert("First return date cannot be earlier than departure date.");
+          return false;
+        }
+        if (ret < today) {
+          alert("First return date cannot be in the past.");
+          return false;
+        }
+      }
+
+      const dep1 = getMidnightDate(departureDate1);
+      if (dep1) {
+        if (dep1 < today) {
+          alert("Second departure date cannot be in the past.");
+          return false;
+        }
+        if (ret && dep1 < ret) {
+          alert("Second departure date cannot be earlier than first return date.");
+          return false;
+        }
+      }
+
+      const ret1 = getMidnightDate(returnDate1);
+      if (ret1) {
+        if (ret1 < today) {
+          alert("Second return date cannot be in the past.");
+          return false;
+        }
+        if (dep1 && ret1 < dep1) {
+          alert("Second return date cannot be earlier than second departure date.");
+          return false;
+        }
       }
     }
     return true;
@@ -207,7 +267,7 @@ const Flights = () => {
   };
 
   return (
-    <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
+    <div className={`w-full min-h-screen transition-colors duration-300 py-8 px-4 ${isDark ? 'dark bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'}`}>
       <div className={`max-w-7xl mx-auto ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200/50'} rounded-2xl shadow-xl border overflow-hidden transition-colors duration-300`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 md:px-8 py-6">

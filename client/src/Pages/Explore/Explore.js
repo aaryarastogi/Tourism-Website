@@ -58,6 +58,7 @@ const Explore =()=>{
                 <SearchStyle 
                     onChange={(e)=>setSearch(e.target.value)}
                     id="standard-search" label="Search destinations..." type="search" variant="standard"
+                    className={isDark ? 'dark-search' : ''}
                 />
             </div>
             <Carousel
